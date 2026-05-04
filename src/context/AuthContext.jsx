@@ -35,6 +35,9 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  console.log("inside authcontext");
+  
+
   return (
     <AuthContext.Provider value={{
       isAuthenticated: !!accessToken,
