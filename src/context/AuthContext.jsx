@@ -5,46 +5,49 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = (token) => {
+  const login = (token, userData = null) => {
     setAccessToken(token);
+    if (userData) setUser(userData);
   };
 
   const logout = async () => {
     try {
       await authService.logout();
-    } catch (e) {
-      console.error("Logout failed", e);
-    }
+    } catch (e) {}
     setAccessToken(null);
+    setUser(null);
     window.location.href = '/auth';
   };
 
-  const logoutAll = async () => {
+  const loadUserProfile = async () => {
+    if (!accessToken) return;
     try {
-      await authService.logoutAll();
-    } catch (e) {
-      console.error(e);
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+    } catch (err) {
+      console.error("Failed to load user profile", err);
     }
-    setAccessToken(null);
-    window.location.href = '/auth';
   };
 
   useEffect(() => {
+    if (accessToken) {
+      loadUserProfile();
+    }
     setIsLoading(false);
-  }, []);
-
-  console.log("AuthContext - isAuthenticated:", !!accessToken);
+  }, [accessToken]);
 
   return (
     <AuthContext.Provider value={{
       isAuthenticated: !!accessToken,
       accessToken,
+      user,
       login,
       logout,
-      logoutAll,
       isLoading,
+      loadUserProfile,
     }}>
       {children}
     </AuthContext.Provider>

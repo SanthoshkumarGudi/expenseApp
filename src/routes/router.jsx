@@ -5,14 +5,14 @@ import { AuthLayout } from '../components/auth/AuthLayout';
 import { VerifyEmail } from '../components/auth/VerifyEmail';
 import { ForgotPassword } from '../components/auth/ForgotPassword';
 import { ResetPassword } from '../components/auth/ResetPassword';
+import { SecuritySettings } from '../components/auth/SecuritySettings';
+import { Profile } from '../components/profile/Profile';
+import { Sessions } from '../components/profile/Sessions';
 import { RouterProvider } from 'react-router-dom';
 
 const Dashboard = () => (
-  <div style={{ padding: 40, fontSize: 28, textAlign: 'center' }}>
-    ✅ Welcome to Dashboard <br />
-    <small style={{ fontSize: 18, color: '#666', marginTop: 20, display: 'block' }}>
-      Core Authentication Flow Completed
-    </small>
+  <div style={{ padding: 40, textAlign: 'center', fontSize: 24 }}>
+    ✅ Welcome to Enterprise Dashboard
   </div>
 );
 
@@ -25,26 +25,22 @@ const NotFound = () => (
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/auth" replace />,
+    element: <Navigate to="/login" replace />,
   },
 
-  // Public Authentication Routes
-  {
-    path: '/auth',
-    element: (
-      <AuthProvider>
-        <AuthLayout />
-      </AuthProvider>
-    ),
-  },
-  {
-    path: '/auth/2fa',
-    element: (
-      <AuthProvider>
-        <AuthLayout />
-      </AuthProvider>
-    ),
-  },
+  // ====================== PUBLIC ROUTES (as per docs) ======================
+ {
+  path: '/login',
+  element: <AuthProvider><AuthLayout /></AuthProvider>,
+},
+{
+  path: '/register',
+  element: <AuthProvider><AuthLayout /></AuthProvider>,
+},
+{
+  path: '/login/2fa',
+  element: <AuthProvider><AuthLayout /></AuthProvider>,
+},
   {
     path: '/forgot-password',
     element: (
@@ -62,7 +58,7 @@ const router = createBrowserRouter([
     element: <VerifyEmail />,
   },
 
-  // Protected Routes
+  // ====================== PROTECTED ROUTES ======================
   {
     path: '/dashboard',
     element: (
@@ -73,8 +69,38 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
   },
+  {
+    path: '/profile',
+    element: (
+      <AuthProvider>
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      </AuthProvider>
+    ),
+  },
+  {
+    path: '/settings/security',
+    element: (
+      <AuthProvider>
+        <ProtectedRoute>
+          <SecuritySettings />
+        </ProtectedRoute>
+      </AuthProvider>
+    ),
+  },
+  {
+    path: '/settings/sessions',
+    element: (
+      <AuthProvider>
+        <ProtectedRoute>
+          <Sessions />
+        </ProtectedRoute>
+      </AuthProvider>
+    ),
+  },
 
-  // Catch-all Route
+  // Catch-all
   {
     path: '*',
     element: <NotFound />,

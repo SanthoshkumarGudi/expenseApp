@@ -101,6 +101,35 @@ export const authService = {
     const res = await api.delete('/auth/2fa/disable', { data: { code } });
     return res.data;
   },
+    // === User Profile Endpoints ===
+  getCurrentUser: async () => {
+    const res = await api.get('/users/me');
+    return res.data;
+  },
+
+  updateProfile: async (data) => {
+    const res = await api.patch('/users/me', data);
+    return res.data;
+  },
+
+  
+
+  // === NEW: Admin - Delete/Deactivate User ===
+
+  deleteUser: async (id) => {
+    return api.delete(`/users/${id}`);
+  },
+
+
+  // === Session Management ===
+  getSessions: async () => {
+    const res = await api.get('/users/me/sessions');
+    return res.data;
+  },
+
+  terminateSession: async (sessionId) => {
+    await api.delete(`/users/me/sessions/${sessionId}`);
+  },
 };
 
 export default api;

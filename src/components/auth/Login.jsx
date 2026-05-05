@@ -38,7 +38,7 @@ export const Login = () => {
 
       // === 2FA Flow as per Documentation ===
       if (response.status === '2fa_required' || response.session_token) {
-        navigate('/auth/2fa', {
+        navigate('/login/2fa', {
           state: {
             sessionToken: response.session_token,
             methods: response.methods || ['totp']
@@ -53,7 +53,6 @@ export const Login = () => {
         login(response.access_token);
         navigate('/dashboard', { replace: true });
       }
-
     } catch (err) {
       setServerError(err.response?.data?.message || 'Invalid credentials');
     } finally {
@@ -72,12 +71,12 @@ export const Login = () => {
         </Typography>
       </Box>
 
-      <Input 
-        label="Email Address" 
-        id="email" 
-        icon={Mail} 
-        error={errors.email?.message} 
-        {...register('email')} 
+      <Input
+        label="Email Address"
+        id="email"
+        icon={Mail}
+        error={errors.email?.message}
+        {...register('email')}
       />
       
       <div style={{ position: 'relative' }}>

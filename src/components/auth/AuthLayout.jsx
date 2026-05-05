@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { AuthCard } from '../common/AuthCard';
 import { Login } from './Login';
@@ -9,24 +9,29 @@ import { useFormTransition } from '../../hooks/useFormTransition';
 
 export const AuthLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { transitionClass, handleSwitch } = useFormTransition();
 
-  const is2faRoute = location.pathname === '/auth/2fa';
+  const is2faRoute = location.pathname === '/login/2fa';
+  const isRegisterRoute = location.pathname === '/register';
 
-  // Default to 2fa if on 2fa route, else login
-  const [mode, setMode] = useState(is2faRoute ? '2fa' : 'login');
+  const [mode, setMode] = useState(is2faRoute ? '2fa' : isRegisterRoute ? 'register' : 'login');
 
+  // Sync mode with URL
   useEffect(() => {
-    if (is2faRoute) {
-      setMode('2fa');
-    }
-  }, [is2faRoute]);
+    if (is2faRoute) setMode('2fa');
+    else if (isRegisterRoute) setMode('register');
+    else setMode('login');
+  }, [is2faRoute, isRegisterRoute]);
 
   const toggleForm = () => {
     handleSwitch();
-    setTimeout(() => {
-      setMode((prev) => (prev === 'login' ? 'register' : 'login'));
-    }, 150);
+
+    if (mode === 'login') {
+      navigate('/register', { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
   };
 
   return (
@@ -47,7 +52,7 @@ export const AuthLayout = () => {
           {mode === '2fa' && <TwoFactor />}
         </Box>
 
-        {/* Toggle links only shown for login/register */}
+        {/* Toggle only for login/register */}
         {(mode === 'login' || mode === 'register') && (
           <Box sx={{ mt: 4, textAlign: 'center', fontSize: '0.875rem' }}>
             {mode === 'login' ? (
