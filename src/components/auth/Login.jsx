@@ -29,36 +29,58 @@ export const Login = () => {
     defaultValues: { rememberMe: false },
   });
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    setServerError(null);
+const onSubmit = async (data) => {
+  setIsLoading(true);
+  setServerError(null);
 
-    try {
-      const response = await authService.login(data);
+  try {
+    const loginPayload = {
+      username: data.email,
+      password: data.password,
+    };
 
-      // === 2FA Flow as per Documentation ===
-      if (response.status === '2fa_required' || response.session_token) {
-        navigate('/login/2fa', {
-          state: {
-            sessionToken: response.session_token,
-            methods: response.methods || ['totp']
-          },
-          replace: true
-        });
-        return;
-      }
+    console.log("🔑 Sending:", loginPayload);
 
-      // Normal login - No 2FA required
-      if (response.access_token) {
-        login(response.access_token);
-        navigate('/dashboard', { replace: true });
-      }
-    } catch (err) {
-      setServerError(err.response?.data?.message || 'Invalid credentials');
-    } finally {
-      setIsLoading(false);
+    const response = await authService.login(loginPayload);
+
+    console.log("✅ Login Success:", response);
+
+    if (response.status === '2fa_required' || response.session_token) {
+      navigate('/login/2fa', {
+        state: { 
+          sessionToken: response.session_token,
+          methods: response.methods || ['totp']
+        },
+        replace: true
+      });
+      return;
     }
-  };
+
+    if (response.access_token) {
+      console.log("access token is ", response.access_token);
+      
+      login(response.access_token);
+      navigate('/dashboard', { replace: true });
+    }
+  } catch (err) {
+    console.error("❌ Login Error:", err.response?.data);
+
+    // Better error extraction for 422 and 401 errors
+    let errorMsg = 'Invalid credentials';
+
+    if (err.response?.data?.detail) {
+      if (typeof err.response.data.detail === 'string') {
+        errorMsg = err.response.data.detail;
+      } else if (Array.isArray(err.response.data.detail)) {
+        errorMsg = err.response.data.detail[0]?.msg || 'Validation error';
+      }
+    }
+
+    setServerError(errorMsg);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -78,7 +100,7 @@ export const Login = () => {
         error={errors.email?.message}
         {...register('email')}
       />
-      
+
       <div style={{ position: 'relative' }}>
         <Input
           label="Password"
@@ -91,13 +113,13 @@ export const Login = () => {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          style={{ 
-            position: 'absolute', 
-            right: 12, 
-            top: 42, 
-            background: 'none', 
-            border: 'none', 
-            cursor: 'pointer' 
+          style={{
+            position: 'absolute',
+            right: 12,
+            top: 42,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer'
           }}
         >
           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -120,9 +142,9 @@ export const Login = () => {
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, flexDirection: 'column', alignItems: 'center' }}>
         <p style={{ color: '#666', margin: '8px 0' }}>Or sign in with</p>
-        <Button 
-          type="button" 
-          variant="outlined" 
+        <Button
+          type="button"
+          variant="outlined"
           onClick={() => authService.googleLogin()}
         >
           Google

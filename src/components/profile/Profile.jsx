@@ -55,6 +55,8 @@ export const Profile = () => {
       if (formData.avatar) data.append('avatar', formData.avatar);
 
       await authService.updateProfile(data);
+      console.log("inside profile component");
+      
       await loadUserProfile(); // Refresh user data
 
       setSuccess(true);

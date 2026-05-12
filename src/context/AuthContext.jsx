@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect } from 'react';
-import { authService } from '../lib/api';
+import { createContext, useState, useEffect } from "react";
+import { authService } from "../lib/api";
 
 export const AuthContext = createContext(null);
 
@@ -19,13 +19,16 @@ export const AuthProvider = ({ children }) => {
     } catch (e) {}
     setAccessToken(null);
     setUser(null);
-    window.location.href = '/auth';
+    window.location.href = "/auth";
   };
 
   const loadUserProfile = async () => {
+    console.log("inside load user profile");
+
     if (!accessToken) return;
     try {
       const userData = await authService.getCurrentUser();
+      console.log("user data is ", userData);
       setUser(userData);
     } catch (err) {
       console.error("Failed to load user profile", err);
@@ -39,16 +42,24 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, [accessToken]);
 
+  const isAdmin =
+    user?.role === "super_admin" ||
+    user?.role === "admin" ||
+    user?.role === "org_admin";
+
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated: !!accessToken,
-      accessToken,
-      user,
-      login,
-      logout,
-      isLoading,
-      loadUserProfile,
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!accessToken,
+        accessToken,
+        user,
+        isAdmin, // ← Important
+        login,
+        logout,
+        isLoading,
+        loadUserProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
