@@ -49,32 +49,34 @@ export function Register() {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setServerError(null);
 
     try {
-      const data = {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      };
-      const response = await authService.register(data);
-      // Redirect to verify email or login page after successful registration
-      navigate('/verify-email', { state: { email: formData.email } });
+        const payload = {
+            full_name: formData.fullName,     // ← Important: snake_case
+            email: formData.email,
+            password: formData.password,
+            // org_id is now optional - backend will handle it
+        };
+
+        const response = await authService.register(payload);
+        navigate('/verify-email', { state: { email: formData.email } });
+        
     } catch (error) {
-      setServerError(error.response?.data?.message || 'Registration failed. Please try again.');
+        console.error("Registration Error:", error.response?.data);
+        setServerError(error.response?.data?.detail?.[0]?.msg || 
+                      error.response?.data?.message || 
+                      'Registration failed');
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
 
   return (
     <>
@@ -87,9 +89,22 @@ export function Register() {
             {serverError}
           </div>
         )}
-        
+        {/* <div>
+          <label className="block text-sm font-medium text-gray-700">Org Id</label>
+          
+          <input 
+            type="text" 
+            name="org_id" 
+            value={formData.org_id}
+            onChange={handleChange}
+            placeholder="Acme Corporation"
+            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          />
+          {errors.org_id && <span className="text-sm text-red-600 mt-1 block">{errors.org_id}</span>}
+        </div> */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Full Name</label>
+          
           <input 
             type="text" 
             name="fullName" 

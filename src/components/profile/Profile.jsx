@@ -5,7 +5,6 @@ import { Box, Typography, TextField, Button, CircularProgress, Alert, Avatar } f
 
 export const Profile = () => {
   const { user, loadUserProfile } = useAuth();
-
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -44,38 +43,57 @@ export const Profile = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
+  e.preventDefault();
+  setSaving(true);
+  setError(null);
 
-    try {
-      const data = new FormData();
-      data.append('full_name', formData.full_name);
-      if (formData.phone) data.append('phone', formData.phone);
-      if (formData.avatar) data.append('avatar', formData.avatar);
+  try {
+    const updateData = {
+      full_name: formData.full_name,
+      phone: formData.phone || null,
+    };
 
-      await authService.updateProfile(data);
-      console.log("inside profile component");
-      
-      await loadUserProfile(); // Refresh user data
+    console.log("Sending update:", updateData);
 
-      setSuccess(true);
-      setIsEditing(false);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update profile");
-    } finally {
-      setSaving(false);
-    }
-  };
+    await authService.updateProfile(updateData);   // ← Send as object (JSON)
+
+    await loadUserProfile(); // Refresh user data
+    setSuccess(true);
+    setIsEditing(false);
+    setTimeout(() => setSuccess(false), 3000);
+  } catch (err) {
+    console.error("Update Error:", err.response?.data);
+    setError(
+      err.response?.data?.detail?.[0]?.msg || 
+      err.response?.data?.message || 
+      "Failed to update profile"
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading || !user) return <CircularProgress sx={{ mt: 4 }} />;
+
+  const handleLogout = async () => {
+    console.log("Logging out user...");
+    await authService.logout();
+    window.location.href = "/auth";
+  };
+
+  console.log("user data in profile component is ", user);
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', p: 4 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         My Profile
       </Typography>
+      <Box sx={{ mb: 2 }}>
+       
+        <Button variant="text" onClick={handleLogout}>
+          logout
+        </Button>
+      </Box>
 
       {success && <Alert severity="success" sx={{ mb: 3 }}>Profile updated successfully!</Alert>}
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -100,8 +118,8 @@ export const Profile = () => {
           <Typography><strong>Full Name:</strong> {user.full_name || 'N/A'}</Typography>
           <Typography><strong>Email:</strong> {user.email}</Typography>
           <Typography><strong>Phone:</strong> {user.phone || 'Not provided'}</Typography>
-          <Typography><strong>Role:</strong> {user.role || 'member'}</Typography>
-          <Typography><strong>2FA:</strong> {user.totp_enabled ? 'Enabled' : 'Disabled'}</Typography>
+          {/* <Typography><strong>Role:</strong> {user.role || 'member'}</Typography> */}
+          {/* <Typography><strong>2FA:</strong> {user.totp_enabled ? 'Enabled' : 'Disabled'}</Typography> */}
         </Box>
       ) : (
         /* Edit Mode */

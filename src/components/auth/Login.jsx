@@ -60,7 +60,7 @@ const onSubmit = async (data) => {
       console.log("access token is ", response.access_token);
       
       login(response.access_token);
-      navigate('/dashboard', { replace: true });
+      navigate('/profile', { replace: true });
     }
   } catch (err) {
     console.error("❌ Login Error:", err.response?.data);

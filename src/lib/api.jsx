@@ -7,11 +7,17 @@ const api = axios.create({
 });
 
 // Debug logging
+// Automatically attach token to every request
 api.interceptors.request.use((config) => {
-  console.log(`📤 [REQUEST] ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  console.log(`📤 ${config.method.toUpperCase()} ${config.url}`);
   return config;
 });
 
+//middleware to log responses and
 api.interceptors.response.use(
   (response) => {
     console.log(`✅ [RESPONSE] ${response.config.url} → Status: ${response.status}`);
@@ -72,6 +78,7 @@ export const authService = {
     await api.post('/auth/logout');
   },
 
+  //logout from all devices for that user
   logoutAll: async () => {
     await api.post('/auth/logout/all');
   },
@@ -101,23 +108,15 @@ export const authService = {
   
 
   updateProfile: async (data) => {
-    const res = await api.patch('/users/me', data);
-    return res.data;
-  },
+  const res = await api.patch('/users/me', data);   // ← Do NOT use FormData here
+  return res.data;
+},
 
   
 getCurrentUser: async () => {
-  try {
     const res = await api.get('/users/me');
     return res.data;
-  } catch (err) {
-    if (err.response?.status === 404) {
-      console.warn("⚠️ /users/me not implemented yet");
-      return { id: 1, email: "current@user.com", full_name: "Test User", role: "user" };
-    }
-    throw err;
-  }
-},
+  },
 
   // === NEW: Admin - Delete/Deactivate User ===
   // === ADMIN ONLY ENDPOINTS ===
