@@ -27,25 +27,9 @@ export const SecuritySettings = () => {
         >
           Change Password
         </button>
-
-        <button
-          onClick={() => setActiveTab('2fa')}
-          style={{
-            padding: '12px 20px',
-            fontWeight: activeTab === '2fa' ? 'bold' : 'normal',
-            borderBottom: activeTab === '2fa' ? '3px solid #1976d2' : 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
-          Two-Factor Authentication
-        </button>
       </Box>
 
       {activeTab === 'password' && <ChangePassword />}
-      {activeTab === '2fa' && <TwoFactor />}
     </Box>
   );
 };

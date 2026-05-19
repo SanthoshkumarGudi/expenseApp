@@ -50,9 +50,9 @@ export const ChangePassword = () => {
 
   return (
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
+      {/* <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Typography variant="h4" fontWeight="bold">Change Password</Typography>
-      </Box>
+      </Box> */}
 
       <Input label="Current Password" type="password" icon={Lock} {...register('currentPassword')} error={errors.currentPassword?.message} />
       <Input label="New Password" type="password" icon={Lock} {...register('newPassword')} error={errors.newPassword?.message} />
