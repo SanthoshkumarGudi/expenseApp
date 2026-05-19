@@ -10,13 +10,15 @@ export const TwoFactor = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  //user from the auth context
+ 
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [serverError, setServerError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const inputsRef = useRef([]);
-  const sessionToken = location.state?.sessionToken;
+  const userId = location.state?.userId;
 
   // Auto-focus first input when component mounts
   useEffect(() => {
@@ -53,40 +55,53 @@ export const TwoFactor = () => {
       inputsRef.current[5]?.focus();
     }
   };
+const onSubmit = async (e) => {
+  e.preventDefault();
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const otpCode = code.join('');
+  const otpCode = code.join('');
 
-    if (otpCode.length !== 6) {
-      setServerError('Please enter all 6 digits');
-      return;
-    }
+  if (otpCode.length !== 6) {
+    setServerError('Please enter all 6 digits');
+    return;
+  }
 
-    if (!sessionToken) {
-      setServerError('Session expired. Please login again.');
-      return;
-    }
+  if (!userId) {
+    setServerError('Session expired. Please login again.');
+    return;
+  }
 
-    setIsLoading(true);
-    setServerError(null);
+  setIsLoading(true);
+  setServerError(null);
 
-    try {
-      const response = await authService.verify2fa({
-        session_token: sessionToken,
-        code: otpCode,
-      });
+  try {
+    const response = await authService.verify2fa({
+      user_id: userId,
+      otp: otpCode,
+    });
 
-      login(response.access_token || response.token);
-      navigate('/dashboard', { replace: true });
-    } catch (err) {
-      setServerError(err.response?.data?.message || 'Invalid or expired 2FA code');
-      setCode(['', '', '', '', '', '']); // Clear inputs
-      inputsRef.current[0]?.focus();
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    console.log('2FA Success:', response);
+
+    login(response.access_token);
+    navigate('/dashboard', { replace: true });
+
+  } catch (err) {
+    console.error('2FA Error:', err.response?.data || err.message);
+
+    setServerError(
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      'Invalid or expired 2FA code'
+    );
+
+    setCode(['', '', '', '', '', '']);
+    inputsRef.current[0]?.focus();
+
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  console.log("user in 2fa is ", userId);
 
   return (
     <Box sx={{ maxWidth: 420, mx: 'auto', px: 2 }}>

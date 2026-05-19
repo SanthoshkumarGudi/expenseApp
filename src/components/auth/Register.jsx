@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { authService } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
+import {VerifyEmail} from './VerifyEmail';
 
 export function Register() {
   const navigate = useNavigate();
@@ -66,7 +67,23 @@ const handleSubmit = async (e) => {
         };
 
         const response = await authService.register(payload);
-        navigate('/verify-email', { state: { email: formData.email } });
+        console.log('Registration Response:', response);
+
+        if (response) {
+          navigate('/verify-email/', {
+            state: {
+              email: formData.email,
+              message: 'Registration successful! Please check your email to verify your account.',
+            },
+            replace: true,
+          });
+        } 
+  
+        else {
+          setServerError(response.message || 'Registration failed');
+        }
+        // navigate('/verify-email', { state: { email: formData.email } }); // in the backend there is no dedicated endpoint for resending verification email, so we will just show a message to check their email
+        // navigate('/auth', { state: { message: 'Registration successful! Please check your email to verify your account.' } });
         
     } catch (error) {
         console.error("Registration Error:", error.response?.data);

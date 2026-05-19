@@ -23,14 +23,9 @@ api.interceptors.response.use(
     console.log(`✅ [RESPONSE] ${response.config.url} → Status: ${response.status}`);
     return response;
   },
-  (error) => {
-    console.error(`❌ [ERROR] ${error.config?.url || ''}`, error.response?.data || error.message);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
+
 
 export const authService = {
   login: async (data) => {
@@ -53,6 +48,7 @@ export const authService = {
     return res.data;
   },
 
+  
   register: async (data) => {
     const res = await api.post('/auth/register', data);
     return res.data;

@@ -8,17 +8,22 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = (token) => {
-    localStorage.setItem('access_token', token);
-    setAccessToken(token);
-  };
+  const login = (accessToken, refreshToken) => {
+  localStorage.setItem('access_token', accessToken);
+
+  if (refreshToken) {
+    localStorage.setItem('refresh_token', refreshToken);
+  }
+
+  setIsAuthenticated(true);
+};
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    setAccessToken(null);
-    setUser(null);
-    window.location.href = "/auth";
-  };
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+
+  setIsAuthenticated(false);
+};
 
   const loadUserProfile = async () => {
     if (!accessToken) return;

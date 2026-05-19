@@ -1,16 +1,16 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { loginSchema } from '../../lib/validation';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { FormWrapper } from '../common/FormWrapper';
-import { FormError } from '../common/FormError';
-import { authService } from '../../lib/api';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { loginSchema } from "../../lib/validation";
+import { Button } from "../common/Button";
+import { Input } from "../common/Input";
+import { FormWrapper } from "../common/FormWrapper";
+import { FormError } from "../common/FormError";
+import { authService } from "../../lib/api";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
 
 export const Login = () => {
   const { login } = useAuth();
@@ -29,62 +29,61 @@ export const Login = () => {
     defaultValues: { rememberMe: false },
   });
 
-const onSubmit = async (data) => {
-  setIsLoading(true);
-  setServerError(null);
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    setServerError(null);
 
-  try {
-    const loginPayload = {
-      username: data.email,
-      password: data.password,
-    };
+    try {
+      const loginPayload = {
+        username: data.email,
+        password: data.password,
+      };
 
-    console.log("🔑 Sending:", loginPayload);
+      console.log("🔑 Sending:", loginPayload);
 
-    const response = await authService.login(loginPayload);
+      const response = await authService.login(loginPayload);
 
-    console.log("✅ Login Success:", response);
+      console.log("✅ Login Success:", response);
 
-    if (response.status === '2fa_required' || response.session_token) {
-      navigate('/login/2fa', {
-        state: { 
-          sessionToken: response.session_token,
-          methods: response.methods || ['totp']
-        },
-        replace: true
-      });
-      return;
-    }
-
-    if (response.access_token) {
-      console.log("access token is ", response.access_token);
-      
-      login(response.access_token);
-      navigate('/profile', { replace: true });
-    }
-  } catch (err) {
-    console.error("❌ Login Error:", err.response?.data);
-
-    // Better error extraction for 422 and 401 errors
-    let errorMsg = 'Invalid credentials';
-
-    if (err.response?.data?.detail) {
-      if (typeof err.response.data.detail === 'string') {
-        errorMsg = err.response.data.detail;
-      } else if (Array.isArray(err.response.data.detail)) {
-        errorMsg = err.response.data.detail[0]?.msg || 'Validation error';
+      if (response.requires_2fa) {
+        navigate("/login/2fa", {
+          state: {
+            userId: response.user_id,
+          },
+          replace: true,
+        });
+        return;
       }
-    }
 
-    setServerError(errorMsg);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (response.access_token) {
+        console.log("access token is ", response.access_token);
+
+        login(response.access_token, response.refresh_token);
+        navigate("/profile", { replace: true });
+      }
+    } catch (err) {
+      console.error("❌ Login Error:", err.response?.data);
+
+      // Better error extraction for 422 and 401 errors
+      let errorMsg = "Invalid credentials";
+
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === "string") {
+          errorMsg = err.response.data.detail;
+        } else if (Array.isArray(err.response.data.detail)) {
+          errorMsg = err.response.data.detail[0]?.msg || "Validation error";
+        }
+      }
+
+      setServerError(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
         <Typography variant="h4" fontWeight="bold">
           Enterprise Login
         </Typography>
@@ -98,40 +97,49 @@ const onSubmit = async (data) => {
         id="email"
         icon={Mail}
         error={errors.email?.message}
-        {...register('email')}
+        {...register("email", { required: "Email is required" })}
       />
 
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: "relative" }}>
         <Input
           label="Password"
           id="password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           icon={Lock}
           error={errors.password?.message}
-          {...register('password')}
+          {...register("password")}
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
           style={{
-            position: 'absolute',
+            position: "absolute",
             right: 12,
             top: 42,
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer'
+            background: "none",
+            border: "none",
+            cursor: "pointer",
           }}
         >
           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginTop: 8 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input type="checkbox" {...register('rememberMe')} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "0.875rem",
+          marginTop: 8,
+        }}
+      >
+        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input type="checkbox" {...register("rememberMe")} />
           Remember me
         </label>
-        <a href="/forgot-password" style={{ color: '#1976d2' }}>Forgot password?</a>
+        <a href="/forgot-password" style={{ color: "#1976d2" }}>
+          Forgot password?
+        </a>
       </div>
 
       <Button type="submit" loading={isLoading}>
@@ -140,8 +148,17 @@ const onSubmit = async (data) => {
 
       <FormError message={serverError} />
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, flexDirection: 'column', alignItems: 'center' }}>
-        <p style={{ color: '#666', margin: '8px 0' }}>Or sign in with</p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 8,
+          marginTop: 16,
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <p style={{ color: "#666", margin: "8px 0" }}>Or sign in with</p>
         <Button
           type="button"
           variant="outlined"

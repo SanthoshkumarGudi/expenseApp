@@ -13,6 +13,7 @@ import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminRoute } from "../components/common/AdminRoute";
 import { AuditLogs } from "../components/admin/AuditLogs";
 
+
 const Dashboard = () => (
   <div style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
     ✅ Welcome to Enterprise Dashboard
@@ -69,7 +70,7 @@ const router = createBrowserRouter([
     element: <ResetPassword />,
   },
   {
-    path: "/verify-email/:token",
+    path: "/verify-email",
     element: <VerifyEmail />,
   },
 
