@@ -15,14 +15,29 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('refresh_token', refreshToken);
   }
 
-  setIsAuthenticated(true);
+  setAccessToken(accessToken);
 };
 
-  const logout = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+const logout = async () => {
 
-  setIsAuthenticated(false);
+  try {
+
+    await authService.logout();
+
+  } catch (err) {
+
+    console.error("Logout API failed", err);
+
+  } finally {
+
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    setAccessToken(null);
+    setUser(null);
+
+    window.location.href = "/login";
+  }
 };
 
   const loadUserProfile = async () => {

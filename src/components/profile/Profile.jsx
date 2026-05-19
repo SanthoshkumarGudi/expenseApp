@@ -11,6 +11,8 @@ export const Profile = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
+  const { logout } = useAuth();
+
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -90,7 +92,7 @@ export const Profile = () => {
       </Typography>
       <Box sx={{ mb: 2 }}>
        
-        <Button variant="text" onClick={handleLogout}>
+        <Button variant="text" onClick={logout} color="error">
           logout
         </Button>
       </Box>

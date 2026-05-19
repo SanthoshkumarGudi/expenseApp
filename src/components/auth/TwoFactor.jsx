@@ -81,7 +81,10 @@ const onSubmit = async (e) => {
 
     console.log('2FA Success:', response);
 
-    login(response.access_token);
+    login(
+  response.access_token,
+  response.refresh_token
+);
     navigate('/dashboard', { replace: true });
 
   } catch (err) {

@@ -1,46 +1,119 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
-  withCredentials: true,
-  timeout: 15000,
+  baseURL: 'http://127.0.0.1:8000',
 });
 
-// Debug logging
-// Automatically attach token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  console.log(`📤 ${config.method.toUpperCase()} ${config.url}`);
-  return config;
-});
 
-//middleware to log responses and
-api.interceptors.response.use(
-  (response) => {
-    console.log(`✅ [RESPONSE] ${response.config.url} → Status: ${response.status}`);
-    return response;
+// =========================
+// REQUEST INTERCEPTOR
+// =========================
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
   },
   (error) => Promise.reject(error)
 );
 
 
-export const authService = {
-  login: async (data) => {
-    const formData = new URLSearchParams();
-    formData.append('username', data.username);
-    formData.append('password', data.password);
-    formData.append('grant_type', 'password');
+// =========================
+// RESPONSE INTERCEPTOR
+// =========================
 
-    const res = await api.post('/auth/login', formData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+api.interceptors.response.use(
+  (response) => response,
+
+  async (error) => {
+    const originalRequest = error.config;
+
+    // access token expired
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
+        // CALL REFRESH ENDPOINT
+        const response = await axios.post(
+          'http://127.0.0.1:8000/auth/token/refresh',
+          {
+            refresh_token: refreshToken,
+          }
+        );
+
+        const newAccessToken = response.data.access_token;
+        const newRefreshToken = response.data.refresh_token;
+
+        // SAVE NEW TOKENS
+        localStorage.setItem('access_token', newAccessToken);
+
+        if (newRefreshToken) {
+          localStorage.setItem('refresh_token', newRefreshToken);
+        }
+
+        // UPDATE FAILED REQUEST
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
+
+        // RETRY ORIGINAL REQUEST
+        return api(originalRequest);
+
+      } catch (refreshError) {
+
+        console.error('Refresh token failed');
+
+        // CLEAR STORAGE
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+
+        // REDIRECT LOGIN
+        window.location.href = '/login';
+
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+
+
+export const authService = {
+  login: async ({ username, password }) => {
+
+    const formData = new URLSearchParams();
+
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const res = await api.post(
+      '/auth/login',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+
     return res.data;
   },
+
   
 
    verify2fa: async (data) => {
@@ -70,13 +143,21 @@ export const authService = {
     return res.data;
   },
     // Logout
-  logout: async () => {
-    await api.post('/auth/logout');
-  },
+    logout: async () => {
+
+  const refreshToken = localStorage.getItem('refresh_token');
+
+  const res = await api.post('/auth/logout', {
+    refresh_token: refreshToken,
+  });
+
+  return res.data;
+},
 
   //logout from all devices for that user
   logoutAll: async () => {
-    await api.post('/auth/logout/all');
+    const res = await api.post('/auth/logout/all');
+    return res.data;
   },
 
   // Change Password (for logged-in users)
