@@ -1,3 +1,4 @@
+// ==================== src/components/auth/AuthLayout.jsx ====================
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
@@ -17,7 +18,6 @@ export const AuthLayout = () => {
 
   const [mode, setMode] = useState(is2faRoute ? '2fa' : isRegisterRoute ? 'register' : 'login');
 
-  // Sync mode with URL
   useEffect(() => {
     if (is2faRoute) setMode('2fa');
     else if (isRegisterRoute) setMode('register');
@@ -26,7 +26,6 @@ export const AuthLayout = () => {
 
   const toggleForm = () => {
     handleSwitch();
-
     if (mode === 'login') {
       navigate('/register', { replace: true });
     } else {
@@ -35,54 +34,71 @@ export const AuthLayout = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'grey.100',
-        p: 2,
-      }}
-    >
-      <AuthCard>
-        <Box className={transitionClass} sx={{ overflow: 'hidden', transition: 'all 0.3s' }}>
-          {mode === 'login' && <Login />}
-          {mode === 'register' && <Register />}
-          {mode === '2fa' && <TwoFactor />}
-        </Box>
+    <AuthCard>
+      <Box className={transitionClass} sx={{ 
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: 1 
+      }}>
+        {mode === 'login' && <Login />}
+        {mode === 'register' && <Register />}
+        {mode === '2fa' && <TwoFactor />}
+      </Box>
 
-        {/* Toggle only for login/register */}
-        {(mode === 'login' || mode === 'register') && (
-          <Box sx={{ mt: 4, textAlign: 'center', fontSize: '0.875rem' }}>
+      {(mode === 'login' || mode === 'register') && (
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
             {mode === 'login' ? (
-              <>
-                Don&apos;t have an account?{' '}
-                <button 
-                  onClick={toggleForm} 
-                  style={{ color: '#1976d2', textDecoration: 'underline' }}
+              <>Don&apos;t have an account?{' '}
+                <Typography 
+                  component="button" 
+                  onClick={toggleForm}
+                  sx={{ 
+                    color: 'primary.main', 
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    '&:hover': { textDecoration: 'underline' }
+                  }}
                 >
                   Create one
-                </button>
+                </Typography>
               </>
             ) : (
-              <>
-                Already have an account?{' '}
-                <button 
-                  onClick={toggleForm} 
-                  style={{ color: '#1976d2', textDecoration: 'underline' }}
+              <>Already have an account?{' '}
+                <Typography 
+                  component="button" 
+                  onClick={toggleForm}
+                  sx={{ 
+                    color: 'primary.main', 
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    '&:hover': { textDecoration: 'underline' }
+                  }}
                 >
                   Sign in
-                </button>
+                </Typography>
               </>
             )}
-          </Box>
-        )}
+          </Typography>
+        </Box>
+      )}
 
-        <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 6, color: 'text.disabled' }}>
-          © 2026 Enterprise Login System
-        </Typography>
-      </AuthCard>
-    </Box>
+      <Typography 
+        variant="caption" 
+        sx={{ 
+          display: 'block', 
+          textAlign: 'center', 
+          mt: 6, 
+          color: 'text.disabled' 
+        }}
+      >
+        © 2026 Enterprise Login System
+      </Typography>
+    </AuthCard>
   );
 };

@@ -1,7 +1,12 @@
+// src/components/auth/Register.jsx
 import React, { useState } from 'react';
-import { authService } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
-import {VerifyEmail} from './VerifyEmail';
+import { Box, Typography, Stack, Link, Divider, Alert } from '@mui/material';
+import { User, Mail, Lock, ArrowRight } from 'lucide-react';
+
+import { Button } from '../common/Button';
+import { Input } from '../common/Input';
+import { authService } from '../../lib/api';
 
 export function Register() {
   const navigate = useNavigate();
@@ -17,174 +22,185 @@ export function Register() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Full name is required';
     }
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email address';
     }
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    } else {
+      if (!/[A-Z]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter';
+      }
+      if (!/[0-9]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one number';
+      }
+      if (!/[!@#$%^&*()-+]/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one special character';
+      }
     }
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords don't match";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setIsLoading(true);
     setServerError(null);
 
     try {
-        const payload = {
-            full_name: formData.fullName,     // ← Important: snake_case
+      const payload = {
+        full_name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      };
+
+      const response = await authService.register(payload);
+
+      if (response) {
+        navigate('/verify-email', {
+          state: {
             email: formData.email,
-            password: formData.password,
-            // org_id is now optional - backend will handle it
-        };
-
-        const response = await authService.register(payload);
-        console.log('Registration Response:', response);
-
-        if (response) {
-          navigate('/verify-email/', {
-            state: {
-              email: formData.email,
-              message: 'Registration successful! Please check your email to verify your account.',
-            },
-            replace: true,
-          });
-        } 
-  
-        else {
-          setServerError(response.message || 'Registration failed');
-        }
-        // navigate('/verify-email', { state: { email: formData.email } }); // in the backend there is no dedicated endpoint for resending verification email, so we will just show a message to check their email
-        // navigate('/auth', { state: { message: 'Registration successful! Please check your email to verify your account.' } });
-        
+            message: 'Registration successful! Please check your email to verify your account.',
+          },
+          replace: true,
+        });
+      }
     } catch (error) {
-        console.error("Registration Error:", error.response?.data);
-        setServerError(error.response?.data?.detail?.[0]?.msg || 
-                      error.response?.data?.message || 
-                      'Registration failed');
+      console.error("Registration Error:", error.response?.data);
+      setServerError(
+        error.response?.data?.detail?.[0]?.msg ||
+        error.response?.data?.message ||
+        'Registration failed. Please try again.'
+      );
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold tracking-tight text-center">Create your account</h1>
-      <p className="mt-2 text-center text-gray-600">Join us to get started</p>
-      
-      <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-        {serverError && (
-          <div className="p-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
-            {serverError}
-          </div>
-        )}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700">Org Id</label>
-          
-          <input 
-            type="text" 
-            name="org_id" 
-            value={formData.org_id}
-            onChange={handleChange}
-            placeholder="Acme Corporation"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          />
-          {errors.org_id && <span className="text-sm text-red-600 mt-1 block">{errors.org_id}</span>}
-        </div> */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Full Name</label>
-          
-          <input 
-            type="text" 
-            name="fullName" 
+    <Box sx={{ width: '100%' }}>
+      <Stack spacing={1} alignItems="center" sx={{ mb: 5 }}>
+        <Typography variant="h4" fontWeight={700} textAlign="center">
+          Create your account
+        </Typography>
+        <Typography variant="body1" color="text.secondary" textAlign="center">
+          Join us to get started with your workspace
+        </Typography>
+      </Stack>
+
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={3}>
+          {serverError && (
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              {serverError}
+            </Alert>
+          )}
+
+          <Input
+            label="Full Name"
+            id="fullName"
+            name="fullName"
+            icon={User}
             value={formData.fullName}
             onChange={handleChange}
+            error={errors.fullName}
             placeholder="John Doe"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            fullWidth
           />
-          {errors.fullName && <span className="text-sm text-red-600 mt-1 block">{errors.fullName}</span>}
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input 
-            type="email" 
-            name="email" 
+
+          <Input
+            label="Email Address"
+            id="email"
+            name="email"
+            type="email"
+            icon={Mail}
             value={formData.email}
             onChange={handleChange}
+            error={errors.email}
             placeholder="you@company.com"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            fullWidth
           />
-          {errors.email && <span className="text-sm text-red-600 mt-1 block">{errors.email}</span>}
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input 
-            type="password" 
-            name="password" 
+
+          <Input
+            label="Password"
+            id="password"
+            name="password"
+            type="password"
+            icon={Lock}
             value={formData.password}
             onChange={handleChange}
+            error={errors.password}
             placeholder="••••••••"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            fullWidth
           />
-          {errors.password && <span className="text-sm text-red-600 mt-1 block">{errors.password}</span>}
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <input 
-            type="password" 
-            name="confirmPassword" 
+
+          <Input
+            label="Confirm Password"
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            icon={Lock}
             value={formData.confirmPassword}
             onChange={handleChange}
+            error={errors.confirmPassword}
             placeholder="••••••••"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            fullWidth
           />
-          {errors.confirmPassword && <span className="text-sm text-red-600 mt-1 block">{errors.confirmPassword}</span>}
-        </div>
-        
-        <button 
-          type="submit" 
-          disabled={isLoading}
-          className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition"
-        >
-          {isLoading ? 'Creating account...' : 'Create account'}
-        </button>
+
+          <Button 
+            type="submit" 
+            loading={isLoading} 
+            fullWidth 
+            size="large"
+            endIcon={<ArrowRight size={20} />}
+          >
+            Create account
+          </Button>
+        </Stack>
       </form>
-      
-      <p className="text-center text-xs text-gray-500 mt-4">
-        By signing up you agree to our{' '}
-        <a href="#" className="text-blue-600 hover:underline">Terms</a>
-      </p>
-    </>
+
+      <Divider sx={{ my: 4 }}>
+        <Typography variant="body2" color="text.secondary">
+          or
+        </Typography>
+      </Divider>
+
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          By signing up, you agree to our{' '}
+          <Link href="#" underline="hover" sx={{ fontWeight: 500 }}>
+            Terms of Service
+          </Link>
+        </Typography>
+      </Box>
+    </Box>
   );
 }

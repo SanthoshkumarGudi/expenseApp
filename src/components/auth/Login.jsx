@@ -1,3 +1,4 @@
+// ==================== src/components/auth/Login.jsx ====================
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
@@ -10,7 +11,8 @@ import { FormError } from "../common/FormError";
 import { authService } from "../../lib/api";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Link, Divider, IconButton } from "@mui/material";
+import { Stack } from "@mui/system";
 
 export const Login = () => {
   const { login } = useAuth();
@@ -30,6 +32,7 @@ export const Login = () => {
   });
 
   const onSubmit = async (data) => {
+    // ... existing logic unchanged
     setIsLoading(true);
     setServerError(null);
 
@@ -39,42 +42,28 @@ export const Login = () => {
         password: data.password,
       };
 
-      console.log("🔑 Sending:", loginPayload);
-
       const response = await authService.login(loginPayload);
-
-      console.log("✅ Login Success:", response);
 
       if (response.requires_2fa) {
         navigate("/login/2fa", {
-          state: {
-            userId: response.user_id,
-          },
+          state: { userId: response.user_id },
           replace: true,
         });
         return;
       }
 
       if (response.access_token) {
-        console.log("access token is ", response.access_token);
-
         login(response.access_token, response.refresh_token);
         navigate("/profile", { replace: true });
       }
     } catch (err) {
       console.error("❌ Login Error:", err.response?.data);
-
-      // Better error extraction for 422 and 401 errors
       let errorMsg = "Invalid credentials";
-
       if (err.response?.data?.detail) {
-        if (typeof err.response.data.detail === "string") {
-          errorMsg = err.response.data.detail;
-        } else if (Array.isArray(err.response.data.detail)) {
-          errorMsg = err.response.data.detail[0]?.msg || "Validation error";
-        }
+        errorMsg = typeof err.response.data.detail === "string" 
+          ? err.response.data.detail 
+          : err.response.data.detail[0]?.msg || "Validation error";
       }
-
       setServerError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -83,90 +72,70 @@ export const Login = () => {
 
   return (
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-      <Box sx={{ textAlign: "center", mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">
-          Enterprise Login
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Sign in to access your organization workspace
+      <Box sx={{ textAlign: 'center', mb: 5 }}>
+        <Typography variant="body1" color="text.secondary">
+          Sign in to access your workspace
         </Typography>
       </Box>
 
-      <Input
-        label="Email Address"
-        id="email"
-        icon={Mail}
-        error={errors.email?.message}
-        {...register("email", { required: "Email is required" })}
-      />
-
-      <div style={{ position: "relative" }}>
+      <Stack spacing={3}>
         <Input
-          label="Password"
-          id="password"
-          type={showPassword ? "text" : "password"}
-          icon={Lock}
-          error={errors.password?.message}
-          {...register("password")}
+          label="Email Address"
+          id="email"
+          icon={Mail}
+          error={errors.email?.message}
+          {...register("email")}
+          fullWidth
         />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          style={{
-            position: "absolute",
-            right: 12,
-            top: 42,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-        </button>
-      </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "0.875rem",
-          marginTop: 8,
-        }}
-      >
-        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input type="checkbox" {...register("rememberMe")} />
-          Remember me
-        </label>
-        <a href="/forgot-password" style={{ color: "#1976d2" }}>
-          Forgot password?
-        </a>
-      </div>
+        <Box sx={{ position: 'relative' }}>
+          <Input
+            label="Password"
+            id="password"
+            type={showPassword ? "text" : "password"}
+            icon={Lock}
+            error={errors.password?.message}
+            {...register("password")}
+            fullWidth
+          />
+          <IconButton
+            onClick={() => setShowPassword(!showPassword)}
+            sx={{ position: 'absolute', right: 12, top: 38 }}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </IconButton>
+        </Box>
 
-      <Button type="submit" loading={isLoading}>
-        Sign in <ArrowRight size={18} />
-      </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" {...register("rememberMe")} />
+            <Typography variant="body2">Remember me</Typography>
+          </label>
+          <Link href="/forgot-password" underline="hover" sx={{ fontSize: '0.875rem' }}>
+            Forgot password?
+          </Link>
+        </Box>
 
-      <FormError message={serverError} />
+        <Button type="submit" loading={isLoading} fullWidth size="large">
+          Sign in <ArrowRight size={18} style={{ marginLeft: 8 }} />
+        </Button>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 8,
-          marginTop: 16,
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <p style={{ color: "#666", margin: "8px 0" }}>Or sign in with</p>
+        <FormError message={serverError} />
+
+        <Divider sx={{ my: 2 }}>
+          <Typography variant="body2" color="text.secondary">or</Typography>
+        </Divider>
+
         <Button
           type="button"
           variant="outlined"
+          fullWidth
           onClick={() => authService.googleLogin()}
+          sx={{ py: 1.5 }}
         >
-          Google
+          Continue with Google
         </Button>
-      </div>
+      </Stack>
     </FormWrapper>
   );
 };

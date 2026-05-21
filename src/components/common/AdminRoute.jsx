@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { Box, Typography } from '@mui/material';
 
 export const AdminRoute = ({ children }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
+  console.log("user is ", user);
 
   if (isLoading) {
     return <div style={{ padding: 50, textAlign: 'center' }}>Loading...</div>;

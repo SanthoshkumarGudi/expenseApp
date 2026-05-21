@@ -1,7 +1,14 @@
+// ==================== src/components/profile/Profile.jsx ====================
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../lib/api';
-import { Box, Typography, TextField, Button, CircularProgress, Alert, Avatar } from '@mui/material';
+import { 
+  Box, Typography, TextField, Button, CircularProgress, 
+  Alert, Avatar, Stack, Paper, IconButton 
+} from '@mui/material';
+import { Edit, Logout } from '@mui/icons-material';
+import { Container } from '@mui/system';
+
 
 export const Profile = () => {
   const { user, loadUserProfile } = useAuth();
@@ -77,101 +84,106 @@ export const Profile = () => {
 
   if (loading || !user) return <CircularProgress sx={{ mt: 4 }} />;
 
-  const handleLogout = async () => {
-    console.log("Logging out user...");
-    await authService.logout();
-    window.location.href = "/auth";
-  };
+  // const handleLogout = async () => {
+  //   console.log("Logging out user...");
+  //   await authService.logout();
+  //   window.location.href = "/auth";
+  // };
 
   console.log("user data in profile component is ", user);
 
+
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: 4 }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        My Profile
-      </Typography>
-      <Box sx={{ mb: 2 }}>
-       
-        <Button variant="text" onClick={logout} color="error">
-          logout
-        </Button>
-      </Box>
+    <Container maxWidth="sm" sx={{ py: 6 }}>
+      <Paper elevation={2} sx={{ p: 5, borderRadius: 3 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+          <Typography variant="h4" fontWeight={700}>
+            My Profile
+          </Typography>
+          <IconButton color="error" onClick={logout}>
+            <Logout />
+          </IconButton>
+        </Stack>
 
-      {success && <Alert severity="success" sx={{ mb: 3 }}>Profile updated successfully!</Alert>}
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 3 }}>Profile updated successfully!</Alert>}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      {/* Avatar */}
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Avatar
-          src={previewAvatar}
-          sx={{ width: 120, height: 120, mx: 'auto', border: '3px solid #1976d2' }}
-        />
-        {isEditing && (
-          <Button variant="outlined" component="label" sx={{ mt: 2 }}>
-            Change Avatar
-            <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+        <Stack alignItems="center" spacing={3} mb={5}>
+          <Avatar
+            src={previewAvatar}
+            sx={{ width: 140, height: 140, border: '4px solid', borderColor: 'primary.main' }}
+          />
+          {isEditing && (
+            <Button variant="outlined" component="label">
+              Change Avatar
+              <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+            </Button>
+          )}
+        </Stack>
+
+        {!isEditing ? (
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">FULL NAME</Typography>
+              <Typography variant="h6">{user.full_name || 'N/A'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">EMAIL</Typography>
+              <Typography variant="h6">{user.email}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">PHONE</Typography>
+              <Typography variant="h6">{user.phone || 'Not provided'}</Typography>
+            </Box>
+          </Stack>
+        ) : (
+          <Box component="form" onSubmit={handleSave}>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label="Full Name"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+              />
+              <TextField
+                fullWidth
+                label="Email Address"
+                value={user.email}
+                disabled
+              />
+              <TextField
+                fullWidth
+                label="Phone Number"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+              />
+
+              <Stack direction="row" spacing={2} mt={2}>
+                <Button type="submit" variant="contained" disabled={saving} fullWidth>
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button variant="outlined" onClick={() => setIsEditing(false)} fullWidth>
+                  Cancel
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        )}
+
+        {!isEditing && (
+          <Button 
+            variant="contained" 
+            startIcon={<Edit />} 
+            onClick={() => setIsEditing(true)}
+            sx={{ mt: 4 }}
+            fullWidth
+          >
+            Edit Profile
           </Button>
         )}
-      </Box>
-
-      {!isEditing ? (
-        /* Display Mode */
-        <Box sx={{ mt: 3, lineHeight: 2.5 }}>
-          <Typography><strong>Full Name:</strong> {user.full_name || 'N/A'}</Typography>
-          <Typography><strong>Email:</strong> {user.email}</Typography>
-          <Typography><strong>Phone:</strong> {user.phone || 'Not provided'}</Typography>
-          {/* <Typography><strong>Role:</strong> {user.role || 'member'}</Typography> */}
-          {/* <Typography><strong>2FA:</strong> {user.totp_enabled ? 'Enabled' : 'Disabled'}</Typography> */}
-        </Box>
-      ) : (
-        /* Edit Mode */
-        <Box component="form" onSubmit={handleSave}>
-          <TextField
-            fullWidth
-            label="Full Name"
-            name="full_name"
-            value={formData.full_name}
-            onChange={handleInputChange}
-            margin="normal"
-          />
-
-          <TextField
-            fullWidth
-            label="Email Address"
-            value={user.email}
-            disabled
-            margin="normal"
-          />
-
-          <TextField
-            fullWidth
-            label="Phone Number"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            margin="normal"
-          />
-
-          <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-            <Button type="submit" variant="contained" disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button variant="outlined" onClick={() => setIsEditing(false)}>
-              Cancel
-            </Button>
-          </Box>
-        </Box>
-      )}
-
-      {!isEditing && (
-        <Button 
-          variant="contained" 
-          sx={{ mt: 4 }} 
-          onClick={() => setIsEditing(true)}
-        >
-          Edit Profile
-        </Button>
-      )}
-    </Box>
+      </Paper>
+    </Container>
   );
 };

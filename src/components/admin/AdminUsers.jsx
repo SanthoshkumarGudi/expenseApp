@@ -11,7 +11,6 @@ export const AdminUsers = () => {
   // Invite Form State
   const [inviteForm, setInviteForm] = useState({
     email: '',
-    full_name: '',
     role: 'member'
   });
   const [inviting, setInviting] = useState(false);
@@ -19,7 +18,7 @@ export const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await authService.getAllUsers();
+      const data = await authService.adminUsers();
       setUsers(Array.isArray(data) ? data : data.users || []);
     } catch (err) {
       setError("Failed to load users");
@@ -41,7 +40,7 @@ export const AdminUsers = () => {
     try {
       await authService.inviteUser(inviteForm);
       setSuccess("Invitation sent successfully!");
-      setInviteForm({ email: '', full_name: '', role: 'member' });
+      setInviteForm({ email: '', role: 'member' });
       fetchUsers();
     } catch (err) {
       setError("Failed to send invitation");
@@ -50,18 +49,7 @@ export const AdminUsers = () => {
     }
   };
 
-  const handleDeactivate = async (userId) => {
-    if (!window.confirm("Deactivate this user account?")) return;
-
-    try {
-      await authService.deleteUser(userId);
-      setSuccess("User deactivated successfully");
-      fetchUsers();
-    } catch (err) {
-      setError("Failed to deactivate user");
-    }
-  };
-
+ 
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -117,7 +105,7 @@ export const AdminUsers = () => {
               <TableCell align="center"><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          {/* <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.full_name}</TableCell>
@@ -131,12 +119,12 @@ export const AdminUsers = () => {
                     size="small"
                     onClick={() => handleDeactivate(user.id)}
                   >
-                    Deactivate
+                    Update User Role
                   </Button>
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody> */}
         </Table>
       </TableContainer>
 

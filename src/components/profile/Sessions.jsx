@@ -14,6 +14,8 @@ export const Sessions = () => {
       setError(null);
       const data = await authService.getSessions();
       setSessions(Array.isArray(data) ? data : data.sessions || []);
+      console.log("session data is ", data);
+      
     } catch (err) {
       console.error(err);
       setError("Failed to load active sessions. Please try again.");
