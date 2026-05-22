@@ -36,6 +36,7 @@ export const ChangePassword = () => {
       await authService.changePassword({
         current_password: data.currentPassword,
         new_password: data.newPassword,
+        confirm_password: data.confirmNewPassword,
       });
 
       setSuccess(true);

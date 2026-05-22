@@ -21,7 +21,7 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  let errorMsg;
   const {
     register,
     handleSubmit,
@@ -43,6 +43,7 @@ export const Login = () => {
       };
 
       const response = await authService.login(loginPayload);
+      console.log("✅ Login Response:", response);
 
       if (response.requires_2fa) {
         navigate("/login/2fa", {
@@ -58,13 +59,13 @@ export const Login = () => {
       }
     } catch (err) {
       console.error("❌ Login Error:", err.response?.data);
-      let errorMsg = "Invalid credentials";
+      // let errorMsg = "Invalid credentials";
       if (err.response?.data?.detail) {
         errorMsg = typeof err.response.data.detail === "string" 
           ? err.response.data.detail 
           : err.response.data.detail[0]?.msg || "Validation error";
       }
-      setServerError(errorMsg);
+      setServerError(errorMsg ? "Login failed. Please check your credentials and try again." : "Login failed. Please check your internet connection and try again.");
     } finally {
       setIsLoading(false);
     }

@@ -12,11 +12,16 @@ import { RouterProvider } from "react-router-dom";
 import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminRoute } from "../components/common/AdminRoute";
 import { AuditLogs } from "../components/admin/AuditLogs";
+import { Navbar } from "../components/layout/Navbar";
+import { Footer } from "../components/layout/Footer";
+import { Box } from "@mui/material";
+import { Outlet } from "react-router-dom";
+
 
 
 const Dashboard = () => (
   <div style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
-    ✅ Welcome to Enterprise Dashboard
+     Welcome to Expense Enterprise Dashboard
   </div>
 );
 
@@ -26,13 +31,25 @@ const NotFound = () => (
   </div>
 );
 
+// Layout Component
+const MainLayout = () => {
+  return (
+    <>
+      <Navbar />
+      <Box sx={{ flexGrow: 1 }}>
+        <Outlet />
+      </Box>
+      <Footer />
+    </>
+  );
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
-  },
-
-  // ====================== PUBLIC ROUTES (as per docs) ======================
+    element: <MainLayout   />,
+    children: [
+       // ====================== PUBLIC ROUTES (as per docs) ======================
   {
     path: "/login",
     element: (
@@ -144,6 +161,10 @@ const router = createBrowserRouter([
     path: "*",
     element: <NotFound />,
   },
-]);
+
+    ]
+  },
+
+ ]);
 
 export const AppRouter = () => <RouterProvider router={router} />;
