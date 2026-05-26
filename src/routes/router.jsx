@@ -4,7 +4,7 @@ import { ProtectedRoute } from "../components/common/ProtectedRoute";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { VerifyEmail } from "../components/auth/VerifyEmail";
 import { ForgotPassword } from "../components/auth/ForgotPassword";
-import { ResetPassword } from "../components/auth/ResetPassword";
+import { ResetPassword } from "../pages/ResetPassword";
 import { SecuritySettings } from "../components/auth/SecuritySettings";
 import { Profile } from "../components/profile/Profile";
 import { Sessions } from "../components/profile/Sessions";
@@ -16,7 +16,7 @@ import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
-
+import { OAuthSuccess } from "../pages/OAuthSuccess";
 
 
 const Dashboard = () => (
@@ -53,83 +53,87 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <AuthLayout />
-      </AuthProvider>
+      //  </AuthProvider> 
     ),
   },
   {
     path: "/register",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <AuthLayout />
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
     path: "/login/2fa",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <AuthLayout />
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
     path: "/forgot-password",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <ForgotPassword />
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
-    path: "/reset-password/:token",
-    element: <ResetPassword />,
-  },
+  path: "reset-password",
+  element: <ResetPassword />,
+},
   {
     path: "/verify-email",
     element: <VerifyEmail />,
   },
+ {
+  path:"/oauth-success",
+  element:<OAuthSuccess /> 
+},
 
   // ====================== PROTECTED ROUTES ======================
   {
     path: "/dashboard",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
     path: "/profile",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <ProtectedRoute>
           <Profile />
         </ProtectedRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
     path: "/settings/security",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <ProtectedRoute>
           <SecuritySettings />
         </ProtectedRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
   {
     path: "/settings/sessions",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <ProtectedRoute>
           <Sessions />
         </ProtectedRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
 
@@ -137,24 +141,28 @@ const router = createBrowserRouter([
   {
     path: "/admin/users",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <AdminRoute>
           <AdminUsers />
         </AdminRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
 
   {
     path: "/admin/audit-logs",
     element: (
-      <AuthProvider>
+      // <AuthProvider>
         <AdminRoute>
           <AuditLogs />
         </AdminRoute>
-      </AuthProvider>
+      // </AuthProvider>
     ),
   },
+   {
+  path: "reset-password",
+  element: <ResetPassword />,
+},
 
   // Catch-all
   {

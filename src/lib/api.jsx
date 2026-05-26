@@ -116,17 +116,21 @@ export const authService = {
     return res.data;
   },
   googleLogin: () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:8000/v1"}/auth/google`;
-  },
+  window.location.href = "http://127.0.0.1:8000/auth/google";
+},
   forgotPassword: async (data) => {
     const res = await api.post("/auth/password/reset-request", data);
     return res.data;
   },
 
-  resetPassword: async ({ token, password }) => {
-    const res = await api.post("/auth/password/reset", { token, password });
-    return res.data;
-  },
+  resetPassword: async (token, password, confirmPassword) => {
+  const res = await api.post("/auth/password/reset", {
+    token:token,
+    new_password: password,
+    confirm_password: confirmPassword,
+  });
+  return res.data;
+},
   // Logout
   logout: async () => {
     const refreshToken = localStorage.getItem("refresh_token");

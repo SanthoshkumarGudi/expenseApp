@@ -1,58 +1,71 @@
 // src/components/auth/Register.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Stack, Link, Divider, Alert } from '@mui/material';
-import { User, Mail, Lock, ArrowRight } from 'lucide-react';
-
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { authService } from '../../lib/api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography, Stack, Link, Divider, Alert } from "@mui/material";
+import { User, Mail, Lock, ArrowRight } from "lucide-react";
+import { Phone } from "lucide-react";
+import { Button } from "../common/Button";
+import { Input } from "../common/Input";
+import { authService } from "../../lib/api";
 
 export function Register() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState(null);
+  const [serverError, setServerError] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
   });
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = "Full name is required";
+    } else if (formData.fullName.trim().length < 3) {
+      newErrors.fullName = "Full name must be at least 3 characters";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
+      newErrors.email = "Invalid email address";
+    } else if (!formData.email.endsWith("@gmail.com")) {
+      newErrors.email = "Invalid email address";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = "Password must be at least 8 characters";
     } else {
       if (!/[A-Z]/.test(formData.password)) {
-        newErrors.password = 'Password must contain at least one uppercase letter';
+        newErrors.password =
+          "Password must contain at least one uppercase letter";
       }
       if (!/[0-9]/.test(formData.password)) {
-        newErrors.password = 'Password must contain at least one number';
+        newErrors.password = "Password must contain at least one number";
       }
       if (!/[!@#$%^&*()-+]/.test(formData.password)) {
-        newErrors.password = 'Password must contain at least one special character';
+        newErrors.password =
+          "Password must contain at least one special character";
       }
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords don't match";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone.trim())) {
+      newErrors.phone = "Phone number must be 10 digits";
     }
 
     setErrors(newErrors);
@@ -64,7 +77,7 @@ export function Register() {
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -80,33 +93,44 @@ export function Register() {
         full_name: formData.fullName,
         email: formData.email,
         password: formData.password,
+        phone: formData.phone,
       };
 
       const response = await authService.register(payload);
 
       if (response) {
-        navigate('/verify-email', {
+        navigate("/verify-email", {
           state: {
             email: formData.email,
-            message: 'Registration successful! Please check your email to verify your account.',
+            message:
+              "Registration successful! Please check your email to verify your account.",
           },
           replace: true,
         });
       }
     } catch (error) {
       console.error("Registration Error:", error.response?.data);
-      setServerError(
-        error.response?.data?.detail?.[0]?.msg ||
-        error.response?.data?.message ||
-        'Registration failed. Please try again.'
-      );
+
+      const detail = error.response?.data?.detail;
+
+      let message = "Registration failed. Please try again.";
+
+      if (typeof detail === "string") {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail[0]?.msg || message;
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+
+      setServerError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       <Stack spacing={1} alignItems="center" sx={{ mb: 5 }}>
         <Typography variant="h4" fontWeight={700} textAlign="center">
           Create your account
@@ -175,10 +199,24 @@ export function Register() {
             fullWidth
           />
 
-          <Button 
-            type="submit" 
-            loading={isLoading} 
-            fullWidth 
+          {/* adding new field for phone number */}
+          <Input
+            label="Phone Number"
+            id="phone"
+            name="phone"
+            type="tel"
+            icon={Phone}
+            value={formData.phone}
+            onChange={handleChange}
+            error={errors.phone}
+            placeholder="+1 (555) 123-4567"
+            fullWidth
+          />
+
+          <Button
+            type="submit"
+            loading={isLoading}
+            fullWidth
             size="large"
             endIcon={<ArrowRight size={20} />}
           >
@@ -193,9 +231,9 @@ export function Register() {
         </Typography>
       </Divider>
 
-      <Box sx={{ textAlign: 'center' }}>
+      <Box sx={{ textAlign: "center" }}>
         <Typography variant="body2" color="text.secondary">
-          By signing up, you agree to our{' '}
+          By signing up, you agree to our{" "}
           <Link href="#" underline="hover" sx={{ fontWeight: 500 }}>
             Terms of Service
           </Link>

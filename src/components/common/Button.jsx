@@ -7,7 +7,7 @@ export const Button = forwardRef((props, ref) => {
   return (
     <MuiButton
       ref={ref}
-      fullWidth
+      
       variant="contained"
       disabled={loading}
       sx={{ mt: 1, py: 1.5 }}

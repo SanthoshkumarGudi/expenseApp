@@ -36,16 +36,7 @@ export const Footer = () => {
           </Box>
         </Box>
 
-        <Divider sx={{ my: 4 }} />
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3 }}>
-          <Typography variant="caption" color="text.secondary">
-            Privacy Policy
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Terms of Service
-          </Typography>
-        </Box>
+        {/* <Divider sx={{ my: 4 }} /> */}
       </Container>
     </Box>
   );

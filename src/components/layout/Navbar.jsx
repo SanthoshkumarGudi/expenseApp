@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
 import { Menu as MenuIcon, Logout, Person, Settings } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,10 @@ export const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+useEffect(() => {
+    console.log('Navbar - Auth State Changed:', { isAuthenticated, user });
+  }, [isAuthenticated, user]);
+
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
@@ -17,6 +21,8 @@ export const Navbar = () => {
     await logout();
     handleClose();
   };
+
+  console.log('isAuthenticated:', isAuthenticated, 'user:', user);
 
   return (
     <AppBar 
