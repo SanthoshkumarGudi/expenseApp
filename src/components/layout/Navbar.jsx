@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
-import { Menu as MenuIcon, Logout, Person, Settings } from '@mui/icons-material';
+import { Menu as MenuIcon, Logout, Person, Settings , AdminPanelSettings} from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -99,6 +99,13 @@ useEffect(() => {
               <MenuItem onClick={() => { navigate('/settings/security'); handleClose(); }}>
                 <Settings sx={{ mr: 1 }} /> Security
               </MenuItem>
+              <MenuItem onClick={() => { navigate('/settings/sessions'); handleClose(); }}>
+                <Settings sx={{mr:1}} /> Sessions    
+              </MenuItem>
+              <MenuItem onClick={() => { navigate('/admin/users'); handleClose(); }}>
+                <AdminPanelSettings sx={{mr:1}} /> Admin Panel    
+              </MenuItem>
+              
               <MenuItem onClick={handleLogout}>
                 <Logout sx={{ mr: 1 }} /> Logout
               </MenuItem>

@@ -22,13 +22,19 @@ export const TwoFactorSettings = () => {
   };
 
   const handleDisable = async () => {
-    setMessage("");
-    const res = await authService.disable2fa(disableCode);
+  setMessage("");
+
+  try {
+    const res = await authService.disable2fa(disableCode.trim());
     setMessage(res.message || "2FA disabled successfully");
     setSetupData(null);
     setCode("");
     setDisableCode("");
-  };
+  } catch (err) {
+    console.log("Disable 2FA Error:", err.response?.data);
+    setMessage(err.response?.data?.detail || "Failed to disable 2FA");
+  }
+};
 
   return (
     <Box>

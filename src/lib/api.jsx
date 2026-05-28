@@ -161,14 +161,18 @@ export const authService = {
   },
 
   verify2faSetup: async (code) => {
-    const res = await api.post("/auth/2fa/verify-setup", { code });
-    return res.data;
-  },
+  const res = await api.post("/auth/2fa/verify-setup", {
+    code: code.trim(),
+  });
+  return res.data;
+},
 
   disable2fa: async (code) => {
-    const res = await api.delete("/auth/2fa/disable", { data: { code } });
-    return res.data;
-  },
+  const res = await api.delete("/auth/2fa/disable", {
+    data: { code },
+  });
+  return res.data;
+},
   // === User Profile Endpoints ===
 
   updateProfile: async (data) => {
