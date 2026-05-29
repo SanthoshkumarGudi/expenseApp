@@ -1,8 +1,14 @@
-// src/components/common/FormWrapper.jsx
+import { Box, Stack } from '@mui/material';
+
 export const FormWrapper = ({ children, onSubmit }) => {
   return (
-    <form onSubmit={onSubmit} style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-      {children}
-    </form>
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+      noValidate
+      sx={{ width: '100%' }}
+    >
+      <Stack spacing={2.2}>{children}</Stack>
+    </Box>
   );
 };

@@ -97,15 +97,15 @@ export const Login = () => {
             icon={Lock}
             error={errors.password?.message}
             {...register("password")}
-            fullWidth
+            
           />
           <IconButton
             onClick={() => setShowPassword(!showPassword)}
-            sx={{ position: 'absolute', right: 12, top: 38 }}
+            sx={{ position: 'absolute', right: 12, top: 38, marginBottom: "10px"}}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <EyeOff size={20} justifyContent="center" /> : <Eye size={20} justifyContent="center" />}
           </IconButton>
-        </Box>
+          </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>

@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../lib/api';
 import { 
-  Box, Typography, TextField, Button, CircularProgress, 
+  Box, Typography, TextField,  CircularProgress, 
   Alert, Avatar, Stack, Paper, IconButton 
 } from '@mui/material';
 import { Edit, Logout } from '@mui/icons-material';
 import { Container } from '@mui/system';
+import { Button } from '../common/Button';
 
 
 export const Profile = () => {
@@ -17,8 +18,6 @@ export const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-
-  const { logout } = useAuth();
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -94,16 +93,14 @@ export const Profile = () => {
 
 
   return (
-    <Container maxWidth="sm" sx={{ py: 6 }}>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
       <Paper elevation={2} sx={{ p: 5, borderRadius: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+        <Stack direction="row" justifyContent="space-between"  mb={4} flexWrap="wrap" alignItems="center">
           <Typography variant="h4" fontWeight={700}>
             My Profile
           </Typography>
-          <IconButton color="error" onClick={logout}>
-            <Logout />
-          </IconButton>
         </Stack>
+       
 
         {success && <Alert severity="success" sx={{ mb: 3 }}>Profile updated successfully!</Alert>}
         {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -161,7 +158,7 @@ export const Profile = () => {
               />
 
               <Stack direction="row" spacing={2} mt={2}>
-                <Button type="submit" variant="contained" disabled={saving} fullWidth>
+                <Button type="submit" variant="contained" disabled={saving} >
                   {saving ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button variant="outlined" onClick={() => setIsEditing(false)} fullWidth>
@@ -178,7 +175,7 @@ export const Profile = () => {
             startIcon={<Edit />} 
             onClick={() => setIsEditing(true)}
             sx={{ mt: 4 }}
-            fullWidth
+            
           >
             Edit Profile
           </Button>

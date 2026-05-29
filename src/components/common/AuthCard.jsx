@@ -1,30 +1,35 @@
-// ==================== src/components/common/AuthCard.jsx ====================
-import { Card, CardContent, Box } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 
 export const AuthCard = ({ children }) => {
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      minHeight: '100vh',
-      bgcolor: 'grey.50',
-      p: { xs: 2, sm: 3 }
-    }}>
-      <Card 
-        elevation={6} 
-        sx={{ 
-          maxWidth: 440, 
+    <Box
+      sx={{
+        minHeight: 'calc(100vh - 72px)',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        px: 2,
+        py: 6,
+        background:
+          'linear-gradient(135deg, rgba(15,118,110,0.08), rgba(37,99,235,0.06))',
+      }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
           width: '100%',
-          borderRadius: 3,
-          overflow: 'hidden',
-          boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)'
+          maxWidth: 460,
+          p: { xs: 3, sm: 4 },
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0 20px 60px rgba(15, 23, 42, 0.08)',
+          bgcolor: 'background.paper',
         }}
       >
-        <CardContent sx={{ p: { xs: 4, sm: 5 } }}>
-          {children}
-        </CardContent>
-      </Card>
+        {children}
+      </Paper>
     </Box>
   );
 };

@@ -8,12 +8,12 @@ export const Footer = () => {
         bgcolor: 'background.paper',
         borderTop: '1px solid',
         borderColor: 'divider',
-        py: 6,
+        py: 2,
         mt: 'auto'
       }}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, justifyContent: 'space-between', alignItems: 'center' }}>
+      <Container>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, justifyContent: 'space-between'}}>
           <Box>
             <Typography variant="h6" fontWeight={700} color="primary.main" gutterBottom>
               Expense Enterprise Application

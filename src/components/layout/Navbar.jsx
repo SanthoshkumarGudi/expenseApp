@@ -36,7 +36,7 @@ useEffect(() => {
         color: 'text.primary'
       }}
     >
-      <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
+      <Toolbar sx={{ mx: 'auto', width: '100%' }}>
         {/* Logo */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
           <Typography 
@@ -57,11 +57,10 @@ useEffect(() => {
         </Box>
 
         {/* Desktop Navigation */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3, alignItems: 'center' }}>
+        <Box sx={{ display: { xs: 'none', md: 'flex', lg: 'flex' }, gap: 3, alignItems: 'center' }}>
           {isAuthenticated ? (
             <>
               <Button component={Link} to="/dashboard" color="inherit">Dashboard</Button>
-              <Button component={Link} to="/profile" color="inherit">Profile</Button>
               {['super_admin', 'admin', 'org_admin'].includes(user?.role) && (
                 <Button component={Link} to="/admin/users" color="inherit">Admin</Button>
               )}

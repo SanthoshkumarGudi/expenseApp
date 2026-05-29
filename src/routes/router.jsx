@@ -17,11 +17,19 @@ import { Footer } from "../components/layout/Footer";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { OAuthSuccess } from "../pages/OAuthSuccess";
+import  TravelList from "../pages/travel/TravelList";
+import TravelDetails from "../pages/travel/TravelDetails";
+import TravelCreate from "../pages/travel/TravelCreate";
+import TravelEdit from "../pages/travel/TravelEdit";  
+
 
 
 const Dashboard = () => (
   <div style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
      Welcome to Expense Enterprise Dashboard
+     <p>
+      This page is in development.
+     </p>
   </div>
 );
 
@@ -162,6 +170,25 @@ const router = createBrowserRouter([
    {
   path: "reset-password",
   element: <ResetPassword />,
+},
+
+//travel routes
+{
+  path: "/travel/list",
+  element: <TravelList />
+},
+{
+  path:"/travel/add",
+  element: <TravelCreate />
+},
+{
+  path:"/travel/:id",
+  element: <TravelDetails />
+},
+{
+  path:"/travel/edit/:id",
+  element: <TravelEdit />
+
 },
 
   // Catch-all
