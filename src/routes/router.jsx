@@ -17,19 +17,18 @@ import { Footer } from "../components/layout/Footer";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { OAuthSuccess } from "../pages/OAuthSuccess";
-import  TravelList from "../pages/travel/TravelList";
+import TravelList from "../pages/travel/TravelList";
 import TravelDetails from "../pages/travel/TravelDetails";
 import TravelCreate from "../pages/travel/TravelCreate";
-import TravelEdit from "../pages/travel/TravelEdit";  
-
-
+import TravelEdit from "../pages/travel/TravelEdit";
+import EmployeeList from "../pages/employees/EmployeeList";
+import EmployeeDetail from "../pages/employees/EmployeeDetail";
+import EmployeeForm from "../components/employees/EmployeeForm";
 
 const Dashboard = () => (
   <div style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
-     Welcome to Expense Enterprise Dashboard
-     <p>
-      This page is in development.
-     </p>
+    Welcome to Expense Enterprise Dashboard
+    <p>This page is in development.</p>
   </div>
 );
 
@@ -55,151 +54,156 @@ const MainLayout = () => {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout   />,
+    element: <MainLayout />,
     children: [
-       // ====================== PUBLIC ROUTES (as per docs) ======================
-  {
-    path: "/login",
-    element: (
-      // <AuthProvider>
-        <AuthLayout />
-      //  </AuthProvider> 
-    ),
-  },
-  {
-    path: "/register",
-    element: (
-      // <AuthProvider>
-        <AuthLayout />
-      // </AuthProvider>
-    ),
-  },
-  {
-    path: "/login/2fa",
-    element: (
-      // <AuthProvider>
-        <AuthLayout />
-      // </AuthProvider>
-    ),
-  },
-  {
-    path: "/forgot-password",
-    element: (
-      // <AuthProvider>
-        <ForgotPassword />
-      // </AuthProvider>
-    ),
-  },
-  {
-  path: "reset-password",
-  element: <ResetPassword />,
-},
-  {
-    path: "/verify-email",
-    element: <VerifyEmail />,
-  },
- {
-  path:"/oauth-success",
-  element:<OAuthSuccess /> 
-},
+      // ====================== PUBLIC ROUTES (as per docs) ======================
+      {
+        path: "/login",
+        element: (
+          <AuthLayout />
+        ),
+      },
+      {
+        path: "/register",
+        element: <AuthLayout />,
+      },
+      {
+        path: "/login/2fa",
+        element: <AuthLayout />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path: "/verify-email",
+        element: <VerifyEmail />,
+      },
+      {
+        path: "/oauth-success",
+        element: <OAuthSuccess />,
+      },
 
-  // ====================== PROTECTED ROUTES ======================
-  {
-    path: "/dashboard",
-    element: (
-      // <AuthProvider>
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      // </AuthProvider>
-    ),
-  },
-  {
-    path: "/profile",
-    element: (
-      // <AuthProvider>
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      // </AuthProvider>
-    ),
-  },
-  {
-    path: "/settings/security",
-    element: (
-      // <AuthProvider>
-        <ProtectedRoute>
-          <SecuritySettings />
-        </ProtectedRoute>
-      // </AuthProvider>
-    ),
-  },
-  {
-    path: "/settings/sessions",
-    element: (
-      // <AuthProvider>
-        <ProtectedRoute>
-          <Sessions />
-        </ProtectedRoute>
-      // </AuthProvider>
-    ),
-  },
+      // ===================== PROTECTED ROUTES (for authentication) =========================
+      {
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/settings/security",
+        element: (
+          <ProtectedRoute>
+            <SecuritySettings />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/settings/sessions",
+        element: (
+          <ProtectedRoute>
+            <Sessions />
+          </ProtectedRoute>
+        ),
+      },
 
-  // =======ADMIN ONLY ROUTE
-  {
-    path: "/admin/users",
-    element: (
-      // <AuthProvider>
-        <AdminRoute>
-          <AdminUsers />
-        </AdminRoute>
-      // </AuthProvider>
-    ),
+      // =======ADMIN ONLY ROUTES========
+      {
+        path: "/admin/users",
+        element: (
+          <AdminRoute>
+            <AdminUsers />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "/admin/audit-logs",
+        element: (
+          <AdminRoute>
+            <AuditLogs />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+
+      //travel routes
+      {
+        path: "/travel/list",
+        element: <TravelList />,
+      },
+      {
+        path: "/travel/add",
+        element: <TravelCreate />,
+      },
+      {
+        path: "/travel/:id",
+        element: <TravelDetails />,
+      },
+      {
+        path: "/travel/edit/:id",
+        element: <TravelEdit />,
+      },
+
+      //emloyee master routes
+      {
+        path: "/employees/list",
+        element: (
+          <ProtectedRoute>
+            <EmployeeList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/employees/add",
+        element: (
+          <AdminRoute>
+            <EmployeeForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/employees/:id",
+        element: (
+          <ProtectedRoute>
+            <EmployeeDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/employees/:id/edit",
+        element: (
+          <AdminRoute>
+            <EmployeeForm />
+          </AdminRoute>
+        ),
+      },
+
+      // Catch-all
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
-
-  {
-    path: "/admin/audit-logs",
-    element: (
-      // <AuthProvider>
-        <AdminRoute>
-          <AuditLogs />
-        </AdminRoute>
-      // </AuthProvider>
-    ),
-  },
-   {
-  path: "reset-password",
-  element: <ResetPassword />,
-},
-
-//travel routes
-{
-  path: "/travel/list",
-  element: <TravelList />
-},
-{
-  path:"/travel/add",
-  element: <TravelCreate />
-},
-{
-  path:"/travel/:id",
-  element: <TravelDetails />
-},
-{
-  path:"/travel/edit/:id",
-  element: <TravelEdit />
-
-},
-
-  // Catch-all
-  {
-    path: "*",
-    element: <NotFound />,
-  },
-
-    ]
-  },
-
- ]);
+]);
 
 export const AppRouter = () => <RouterProvider router={router} />;

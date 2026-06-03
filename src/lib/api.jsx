@@ -5,9 +5,7 @@ const api = axios.create({
   baseURL: "http://127.0.0.1:8000",
 });
 
-// =========================
 // REQUEST INTERCEPTOR
-// =========================
 
 api.interceptors.request.use(
   (config) => {
@@ -78,7 +76,7 @@ api.interceptors.response.use(
 
         return Promise.reject(refreshError);
       } finally {
-        Navigate("/login");
+        window.location.href = "/login";
       }
     }
 
@@ -244,6 +242,40 @@ export const authService = {
 
   updateUserRole: async (userId, data) => {
     const res = await api.patch(`/users/${userId}`, data);
+    return res.data;
+  },
+};
+
+export const employeeService = {
+  getStats: async () => {
+    const res = await api.get("/employees/stats");
+    return res.data;
+  },
+
+  getEmployees: async (params = {}) => {
+    const res = await api.get("/employees", { params });
+    return res.data;
+  },
+
+  getEmployee: async (id) => {
+    const res = await api.get(`/employees/${id}`);
+    return res.data;
+  },
+
+  createEmployee: async (data) => {
+    const res = await api.post("/employees", data);
+    return res.data;
+  },
+
+  updateEmployee: async (id, data) => {
+    const res = await api.patch(`/employees/${id}`, data);
+    return res.data;
+  },
+
+  toggleEmployeeStatus: async (id, active) => {
+    const res = await api.patch(
+      `/employees/${id}/toggle-active?active=${active}`
+    );
     return res.data;
   },
 };
