@@ -72,11 +72,11 @@ api.interceptors.response.use(
         localStorage.removeItem("refresh_token");
 
         // REDIRECT LOGIN
-        // window.location.href = '/login';
+        window.location.href = '/login';
 
         return Promise.reject(refreshError);
       } finally {
-        window.location.href = "/login";
+         window.location.href = "/login";
       }
     }
 

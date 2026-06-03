@@ -14,7 +14,7 @@ import { AdminRoute } from "../components/common/AdminRoute";
 import { AuditLogs } from "../components/admin/AuditLogs";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { OAuthSuccess } from "../pages/OAuthSuccess";
 import TravelList from "../pages/travel/TravelList";
@@ -26,16 +26,28 @@ import EmployeeDetail from "../pages/employees/EmployeeDetail";
 import EmployeeForm from "../components/employees/EmployeeForm";
 
 const Dashboard = () => (
-  <div style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
-    Welcome to Expense Enterprise Dashboard
+  <Box style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
+    <Typography
+      
+      sx={{
+        fontSize: {
+          xs: "3rem",
+          sm: "5rem",
+          md: "6rem",
+        },
+      }}
+    >
+      Dashboard
+    </Typography>
+    Welcome to Expense Management System Dashboard!
     <p>This page is in development.</p>
-  </div>
+  </Box>
 );
 
 const NotFound = () => (
-  <div style={{ padding: 40, textAlign: "center", fontSize: 20 }}>
+  <Box style={{ padding: 40, textAlign: "center", fontSize: 20 }}>
     404 - Page Not Found
-  </div>
+  </Box>
 );
 
 // Layout Component
@@ -59,9 +71,7 @@ const router = createBrowserRouter([
       // ====================== PUBLIC ROUTES (as per docs) ======================
       {
         path: "/login",
-        element: (
-          <AuthLayout />
-        ),
+        element: <AuthLayout />,
       },
       {
         path: "/register",
