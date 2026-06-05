@@ -38,7 +38,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh_token");
 
         if (!refreshToken) {
-          throw new Error("No refresh token");
+          throw new Error("No refresh token available");
         }
 
         // CALL REFRESH ENDPOINT
