@@ -66,21 +66,14 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token failed");
-
-        // CLEAR STORAGE
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-
-        // REDIRECT LOGIN
-        window.location.href = '/login';
-
+        window.location.href = "/login";
         return Promise.reject(refreshError);
-      } finally {
-         window.location.href = "/login";
       }
+      
     }
-
-    return Promise.reject(error);
+        return Promise.reject(error); // ← ADD THIS LINE
   },
 );
 
@@ -114,21 +107,21 @@ export const authService = {
     return res.data;
   },
   googleLogin: () => {
-  window.location.href = "http://127.0.0.1:8000/auth/google";
-},
+    window.location.href = "http://127.0.0.1:8000/auth/google";
+  },
   forgotPassword: async (data) => {
     const res = await api.post("/auth/password/reset-request", data);
     return res.data;
   },
 
   resetPassword: async (token, password, confirmPassword) => {
-  const res = await api.post("/auth/password/reset", {
-    token:token,
-    new_password: password,
-    confirm_password: confirmPassword,
-  });
-  return res.data;
-},
+    const res = await api.post("/auth/password/reset", {
+      token: token,
+      new_password: password,
+      confirm_password: confirmPassword,
+    });
+    return res.data;
+  },
   // Logout
   logout: async () => {
     const refreshToken = localStorage.getItem("refresh_token");
@@ -159,18 +152,18 @@ export const authService = {
   },
 
   verify2faSetup: async (code) => {
-  const res = await api.post("/auth/2fa/verify-setup", {
-    code: code.trim(),
-  });
-  return res.data;
-},
+    const res = await api.post("/auth/2fa/verify-setup", {
+      code: code.trim(),
+    });
+    return res.data;
+  },
 
   disable2fa: async (code) => {
-  const res = await api.delete("/auth/2fa/disable", {
-    data: { code },
-  });
-  return res.data;
-},
+    const res = await api.delete("/auth/2fa/disable", {
+      data: { code },
+    });
+    return res.data;
+  },
   // === User Profile Endpoints ===
 
   updateProfile: async (data) => {
@@ -183,7 +176,7 @@ export const authService = {
     return res.data;
   },
 
-  // === NEW: Admin 
+  // === NEW: Admin
   // === ADMIN ONLY ENDPOINTS ===
 
   // List all users (paginated)
@@ -229,7 +222,6 @@ export const authService = {
     return res.data;
   },
 
-
   adminUsers: async (page = 1, limit = 10) => {
     const res = await api.get(`/users?page=${page}&limit=${limit}`);
     return res.data;
@@ -249,6 +241,11 @@ export const authService = {
 export const employeeService = {
   getStats: async () => {
     const res = await api.get("/employees/stats");
+    return res.data;
+  },
+
+  getEmployeeTypes: async () => {
+    const res = await api.get("/employment-types");
     return res.data;
   },
 
@@ -274,7 +271,7 @@ export const employeeService = {
 
   toggleEmployeeStatus: async (id, active) => {
     const res = await api.patch(
-      `/employees/${id}/toggle-active?active=${active}`
+      `/employees/${id}/toggle-active?active=${active}`,
     );
     return res.data;
   },

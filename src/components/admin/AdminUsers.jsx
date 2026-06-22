@@ -79,7 +79,7 @@ const LoadingRows = ({ cols, rows = 6 }) =>
     </TableRow>
   ));
 
-// ─── Invite Form ──────────────────────────────────────────────────────────────
+// ─── Invite Form 
 
 const InviteForm = ({ onSuccess, onError }) => {
   const [form, setForm]       = useState(EMPTY_INVITE);
@@ -118,11 +118,12 @@ const InviteForm = ({ onSuccess, onError }) => {
   };
 
   return (
-    <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2 }}>
       <Stack direction="row" alignItems="center" gap={1} mb={2.5}>
         <PersonAdd fontSize="small" color="primary"/>
         <Typography variant="subtitle1" fontWeight={700}>Invite New User</Typography>
       </Stack>
+    
 
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1}}>
         <Stack direction={{ xs: 'column', sm: 'column' , md: 'row' , lg: 'row' }} gap={2} flexWrap="wrap" alignItems="flex-start">

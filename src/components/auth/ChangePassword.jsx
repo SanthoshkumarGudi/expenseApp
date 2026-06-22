@@ -1,14 +1,17 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { FormWrapper } from '../common/FormWrapper';
-import { FormError } from '../common/FormError';
 import { authService } from '../../lib/api';
-import { Box, Typography } from '@mui/material';
+import { Alert, Box, LinearProgress, Typography } from '@mui/material';
+import {
+  LockOutlined,
+  ArrowForward,
+  CheckCircleOutlineOutlined,
+} from '@mui/icons-material';
 
 const schema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -19,26 +22,45 @@ const schema = z.object({
   path: ['confirmNewPassword'],
 });
 
+const getStrength = (val) => {
+  if (!val) return { value: 0, label: '', color: 'inherit' };
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (val.length >= 12) score++;
+  if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+  if (/\d/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = [
+    { value: 20, label: 'Very weak', color: 'error' },
+    { value: 40, label: 'Weak', color: 'warning' },
+    { value: 60, label: 'Fair', color: 'warning' },
+    { value: 80, label: 'Strong', color: 'success' },
+    { value: 100, label: 'Very strong', color: 'success' },
+  ];
+  return levels[Math.min(score - 1, 4)];
+};
+
 export const ChangePassword = () => {
   const [serverError, setServerError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     resolver: zodResolver(schema),
   });
+
+  const newPasswordVal = watch('newPassword', '');
+  const strength = getStrength(newPasswordVal);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     setServerError(null);
-
     try {
       await authService.changePassword({
         current_password: data.currentPassword,
         new_password: data.newPassword,
         confirm_password: data.confirmNewPassword,
       });
-
       setSuccess(true);
       reset();
       setTimeout(() => setSuccess(false), 4000);
@@ -51,18 +73,57 @@ export const ChangePassword = () => {
 
   return (
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-      {/* <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">Change Password</Typography>
-      </Box> */}
+      <Input
+        label="Current password"
+        type="password"
+        icon={LockOutlined}
+        {...register('currentPassword')}
+        error={errors.currentPassword?.message}
+      />
 
-      <Input label="Current Password" type="password" icon={Lock} {...register('currentPassword')} error={errors.currentPassword?.message} />
-      <Input label="New Password" type="password" icon={Lock} {...register('newPassword')} error={errors.newPassword?.message} />
-      <Input label="Confirm New Password" type="password" icon={Lock} {...register('confirmNewPassword')} error={errors.confirmNewPassword?.message} />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Input
+          label="New password"
+          type="password"
+          icon={LockOutlined}
+          {...register('newPassword')}
+          error={errors.newPassword?.message}
+        />
+        {newPasswordVal && (
+          <>
+            <LinearProgress
+              variant="determinate"
+              value={strength.value}
+              color={strength.color}
+              sx={{ height: 3, borderRadius: 99 }}
+            />
+            <Typography variant="caption" color={`${strength.color}.main`}>
+              {strength.label}
+            </Typography>
+          </>
+        )}
+      </Box>
 
-      <Button type="submit" loading={isLoading}>Update Password <ArrowRight size={18} /></Button>
+      <Input
+        label="Confirm new password"
+        type="password"
+        icon={LockOutlined}
+        {...register('confirmNewPassword')}
+        error={errors.confirmNewPassword?.message}
+      />
 
-      <FormError message={serverError} />
-      {success && <p style={{ color: 'green', textAlign: 'center', marginTop: 12 }}>✅ Password changed successfully!</p>}
+      {serverError && <Alert severity="error" sx={{ borderRadius: 2 }}>{serverError}</Alert>}
+      {success && (
+        <Alert severity="success" icon={<CheckCircleOutlineOutlined />} sx={{ borderRadius: 2 }}>
+          Password changed successfully
+        </Alert>
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+        <Button type="submit" loading={isLoading} endIcon={<ArrowForward />}>
+          Update password
+        </Button>
+      </Box>
     </FormWrapper>
   );
 };
