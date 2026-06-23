@@ -1,19 +1,17 @@
 import React, { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, TextField, MenuItem } from "@mui/material";
 import { employeeService } from "../../lib/api";
 import { Button } from "../../components/common/Button";
 import { useNavigate } from "react-router-dom";
-import { TextField } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { MenuItem } from "@mui/material";
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
   const [employeeTypes, setEmployeeTypes] = React.useState([]);
 
   useEffect(() => {
-    const fetchEmplyeeTypes = async () => {
+    const fetchEmployeeTypes = async () => {
       try {
         const types = await employeeService.getEmployeeTypes();
         setEmployeeTypes(types);
@@ -21,18 +19,14 @@ export default function EmployeeCreate() {
         console.error("Failed to fetch employee types:", error);
       }
     };
-
-    fetchEmplyeeTypes();
+    fetchEmployeeTypes();
   }, []);
-
-  // const employmentTypes = ["Full-time", "Part-time", "Contract", "Intern"];
 
   const formik = useFormik({
     initialValues: {
       first_name: "",
       last_name: "",
       work_email: "",
-      gender: "",
       mobile_number: "",
       department: "",
       designation: "",
@@ -44,17 +38,23 @@ export default function EmployeeCreate() {
       cost_centre: "",
       company_entity: "",
       work_location: "",
-      system_role: "employee", // default value since it's required
+      system_role: "employee",
+      gender: "",
     },
     validationSchema: Yup.object({
-      first_name: Yup.string().required("First name is required"),
-      last_name: Yup.string().required("Last name is required"),
-      work_email: Yup.string()
-        .email("Invalid email")
-        .required("Work email is required"),
+      first_name:     Yup.string().required("First name is required"),
+      last_name:      Yup.string().required("Last name is required"),
+      work_email:     Yup.string().email("Invalid email").required("Work email is required"),
+      mobile_number:  Yup.string().required("Mobile number is required"),
+      department:     Yup.string().required("Department is required"),
+      designation:    Yup.string().required("Designation is required"),
+      grade:          Yup.string().required("Grade is required"),
+      date_of_joining: Yup.string().required("Date of joining is required"),
+      cost_centre:    Yup.string().required("Cost centre is required"),
       company_entity: Yup.string().required("Company entity is required"),
-      work_location: Yup.string().required("Work location is required"),
-      system_role: Yup.string().required("System role is required"),
+      work_location:  Yup.string().required("Work location is required"),
+      system_role:    Yup.string().required("System role is required"),
+      gender:         Yup.string().required("Gender is required"),
     }),
     onSubmit: async (values) => {
       try {
@@ -71,272 +71,142 @@ export default function EmployeeCreate() {
               ? null
               : Number(values.department_head_id),
         };
-
-        console.log("Submitting payload:", payload);
         await employeeService.createEmployee(payload);
         navigate("/employees/list");
       } catch (error) {
-        // ADD THIS - logs the actual validation errors from FastAPI
         console.error("Error detail:", error.response?.data);
       }
     },
   });
 
-  console.log("employment types are ", employeeTypes);
+  const field = (name) => ({
+    name,
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[name] && Boolean(formik.errors[name]),
+    helperText: formik.touched[name] && formik.errors[name],
+    fullWidth: true,
+  });
 
   return (
-    <>
-      <Box sx={{ maxWidth: 600, mx: "auto", p: 4 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Create Employee
+    <Box sx={{ maxWidth: 640, mx: "auto", p: { xs: 2, sm: 3, md: 4 } }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Create employee
         </Typography>
-
-        <Typography variant="body1" color="textSecondary" gutterBottom>
+        <Typography variant="body2" color="text.secondary">
           Fill in the details below to add a new employee to your organization.
         </Typography>
       </Box>
-      {/* formik will go here */}
-      <form onSubmit={formik.handleSubmit}>
+
+      <Box
+        component="form"
+        onSubmit={formik.handleSubmit}
+        sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+      >
+        {/* Personal */}
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: -1 }}>
+          Personal details
+        </Typography>
+
+        <TextField label="First name"    {...field("first_name")} />
+        <TextField label="Last name"     {...field("last_name")} />
+        <TextField label="Work email"    {...field("work_email")} type="email" />
+        <TextField label="Mobile number" {...field("mobile_number")} />
+
+        <TextField select label="Gender" {...field("gender")}>
+          <MenuItem value="Male">Male</MenuItem>
+          <MenuItem value="Female">Female</MenuItem>
+          <MenuItem value="Other">Other</MenuItem>
+        </TextField>
+
+        {/* Organization */}
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1, mb: -1 }}>
+          Organization details
+        </Typography>
+
+        <TextField label="Department"    {...field("department")} />
+        <TextField label="Designation"   {...field("designation")} />
+        <TextField label="Grade"         {...field("grade")} />
+        <TextField label="Cost centre"   {...field("cost_centre")} />
+        <TextField label="Company entity" {...field("company_entity")} />
+        <TextField label="Work location" {...field("work_location")} />
+
+        <TextField
+          label="Date of joining"
+          type="date"
+          {...field("date_of_joining")}
+          InputLabelProps={{ shrink: true }}
+        />
+
+        <TextField select label="Employment type" {...field("employment_type")}>
+          {employeeTypes.map((type) => (
+            <MenuItem key={type} value={type}>
+              {type}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        {/* Access & Hierarchy */}
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1, mb: -1 }}>
+          Access & hierarchy
+        </Typography>
+
+        <TextField select label="System role" {...field("system_role")}>
+          <MenuItem value="employee">Employee</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
+          <MenuItem value="hr">HR</MenuItem>
+          <MenuItem value="manager">Manager</MenuItem>
+        </TextField>
+
+        <TextField
+          label="Reporting manager ID"
+          {...field("reporting_manager_id")}
+          helperText={
+            (formik.touched.reporting_manager_id &&
+              formik.errors.reporting_manager_id) ||
+            "Leave blank if none"
+          }
+        />
+
+        <TextField
+          label="Department head ID"
+          {...field("department_head_id")}
+          helperText={
+            (formik.touched.department_head_id &&
+              formik.errors.department_head_id) ||
+            "Leave blank if none"
+          }
+        />
+
         <Box
           sx={{
-            maxWidth: 600,
-            mx: "auto",
-            p: 4,
+            pt: 2,
+            mt: 1,
+            borderTop: "1px solid",
+            borderColor: "divider",
             display: "flex",
-            flexDirection: "column",
-            gap: 3,
+            justifyContent: "flex-end",
+            gap: 2,
           }}
         >
-          <TextField
-            label="First Name"
-            name="first_name"
-            value={formik.values.first_name}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.first_name && Boolean(formik.errors.first_name)
-            }
-            helperText={formik.touched.first_name && formik.errors.first_name}
-            fullWidth
-          />
-
-          <TextField
-            label="Last Name"
-            name="last_name"
-            value={formik.values.last_name}
-            onChange={formik.handleChange}
-            error={formik.touched.last_name && Boolean(formik.errors.last_name)}
-            helperText={formik.touched.last_name && formik.errors.last_name}
-            fullWidth
-          />
-
-          <TextField
-            label="Work Email"
-            name="work_email"
-            type="email"
-            value={formik.values.work_email}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.work_email && Boolean(formik.errors.work_email)
-            }
-            helperText={formik.touched.work_email && formik.errors.work_email}
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="Gender"
-            name="gender"
-            value={formik.values.gender}
-            onChange={formik.handleChange}
-            fullWidth
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/employees/list")}
+            sx={{ px: 3, py: 1 }}
           >
-            <MenuItem value="Male">Male</MenuItem>
-            <MenuItem value="Female">Female</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
-          </TextField>
-
-          <TextField
-            label="Mobile Number"
-            name="mobile_number"
-            value={formik.values.mobile_number}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.mobile_number &&
-              Boolean(formik.errors.mobile_number)
-            }
-            helperText={
-              formik.touched.mobile_number && formik.errors.mobile_number
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="Department"
-            name="department"
-            value={formik.values.department}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.department && Boolean(formik.errors.department)
-            }
-            helperText={formik.touched.department && formik.errors.department}
-            fullWidth
-          />
-
-          <TextField
-            label="designation"
-            name="designation"
-            value={formik.values.designation}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.designation && Boolean(formik.errors.designation)
-            }
-            helperText={formik.touched.designation && formik.errors.designation}
-            fullWidth
-          />
-
-          <TextField
-            label="grade"
-            name="grade"
-            value={formik.values.grade}
-            onChange={formik.handleChange}
-            error={formik.touched.grade && Boolean(formik.errors.grade)}
-            helperText={formik.touched.grade && formik.errors.grade}
-            fullWidth
-          />
-
-          <TextField
-            label="date_of_joining"
-            name="date_of_joining"
-            type="date"
-            value={formik.values.date_of_joining}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.date_of_joining &&
-              Boolean(formik.errors.date_of_joining)
-            }
-            helperText={
-              formik.touched.date_of_joining && formik.errors.date_of_joining
-            }
-            fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-
-          <TextField
-            label="cost_centre"
-            name="cost_centre"
-            value={formik.values.cost_centre}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.cost_centre && Boolean(formik.errors.cost_centre)
-            }
-            helperText={formik.touched.cost_centre && formik.errors.cost_centre}
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="Employment Type"
-            name="employment_type"
-            value={formik.values.employment_type}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.employment_type &&
-              Boolean(formik.errors.employment_type)
-            }
-            helperText={
-              formik.touched.employment_type && formik.errors.employment_type
-            }
-            fullWidth
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ px: 3, py: 1 }}
           >
-            {employeeTypes.map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label="reporting_manager_id"
-            name="reporting_manager_id"
-            value={formik.values.reporting_manager_id}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.reporting_manager_id &&
-              Boolean(formik.errors.reporting_manager_id)
-            }
-            helperText={
-              formik.touched.reporting_manager_id &&
-              formik.errors.reporting_manager_id
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="department_head_id"
-            name="department_head_id"
-            value={formik.values.department_head_id}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.department_head_id &&
-              Boolean(formik.errors.department_head_id)
-            }
-            helperText={
-              formik.touched.department_head_id &&
-              formik.errors.department_head_id
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="Company Entity"
-            name="company_entity"
-            value={formik.values.company_entity}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.company_entity &&
-              Boolean(formik.errors.company_entity)
-            }
-            helperText={
-              formik.touched.company_entity && formik.errors.company_entity
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="Work Location"
-            name="work_location"
-            value={formik.values.work_location}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.work_location &&
-              Boolean(formik.errors.work_location)
-            }
-            helperText={
-              formik.touched.work_location && formik.errors.work_location
-            }
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="System Role"
-            name="system_role"
-            value={formik.values.system_role}
-            onChange={formik.handleChange}
-            fullWidth
-          >
-            <MenuItem value="employee">Employee</MenuItem>
-            <MenuItem value="admin">Admin</MenuItem>
-            {/* add other SystemRole enum values as needed */}
-          </TextField>
-
-          <Button type="submit" variant="contained" fullWidth>
-            Create Employee
+            Create employee
           </Button>
         </Box>
-      </form>
-    </>
+      </Box>
+    </Box>
   );
 }

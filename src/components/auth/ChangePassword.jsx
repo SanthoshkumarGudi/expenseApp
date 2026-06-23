@@ -1,29 +1,27 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { z } from 'zod';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { FormWrapper } from '../common/FormWrapper';
-import { authService } from '../../lib/api';
-import { Alert, Box, LinearProgress, Typography } from '@mui/material';
-import {
-  LockOutlined,
-  ArrowForward,
-  CheckCircleOutlineOutlined,
-} from '@mui/icons-material';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { z } from "zod";
+import { Button } from "../common/Button";
+import { Input } from "../common/Input";
+import { FormWrapper } from "../common/FormWrapper";
+import { authService } from "../../lib/api";
+import { Alert, Box, LinearProgress, Typography } from "@mui/material";
+import { LockOutlined, ArrowForward, CheckCircleOutlineOutlined} from "@mui/icons-material";
 
-const schema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "Password must be at least 8 characters"),
-  confirmNewPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmNewPassword, {
-  message: "Passwords don't match",
-  path: ['confirmNewPassword'],
-});
+const schema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmNewPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords don't match",
+    path: ["confirmNewPassword"],
+  });
 
 const getStrength = (val) => {
-  if (!val) return { value: 0, label: '', color: 'inherit' };
+  if (!val) return null;
   let score = 0;
   if (val.length >= 8) score++;
   if (val.length >= 12) score++;
@@ -31,11 +29,11 @@ const getStrength = (val) => {
   if (/\d/.test(val)) score++;
   if (/[^A-Za-z0-9]/.test(val)) score++;
   const levels = [
-    { value: 20, label: 'Very weak', color: 'error' },
-    { value: 40, label: 'Weak', color: 'warning' },
-    { value: 60, label: 'Fair', color: 'warning' },
-    { value: 80, label: 'Strong', color: 'success' },
-    { value: 100, label: 'Very strong', color: 'success' },
+    { value: 20, label: "Very weak",   color: "error"   },
+    { value: 40, label: "Weak",        color: "warning" },
+    { value: 60, label: "Fair",        color: "warning" },
+    { value: 80, label: "Strong",      color: "success" },
+    { value: 100, label: "Very strong", color: "success" },
   ];
   return levels[Math.min(score - 1, 4)];
 };
@@ -45,11 +43,15 @@ export const ChangePassword = () => {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
-    resolver: zodResolver(schema),
-  });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm({ resolver: zodResolver(schema) });
 
-  const newPasswordVal = watch('newPassword', '');
+  const newPasswordVal = watch("newPassword", "");
   const strength = getStrength(newPasswordVal);
 
   const onSubmit = async (data) => {
@@ -65,7 +67,9 @@ export const ChangePassword = () => {
       reset();
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
-      setServerError(err.response?.data?.message || "Failed to change password");
+      setServerError(
+        err.response?.data?.message || "Failed to change password"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -77,27 +81,31 @@ export const ChangePassword = () => {
         label="Current password"
         type="password"
         icon={LockOutlined}
-        {...register('currentPassword')}
+        {...register("currentPassword")}
         error={errors.currentPassword?.message}
       />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
         <Input
           label="New password"
           type="password"
           icon={LockOutlined}
-          {...register('newPassword')}
+          {...register("newPassword")}
           error={errors.newPassword?.message}
         />
-        {newPasswordVal && (
+        {strength && (
           <>
             <LinearProgress
               variant="determinate"
               value={strength.value}
               color={strength.color}
-              sx={{ height: 3, borderRadius: 99 }}
+              sx={{ height: 3, borderRadius: 99, mt: 0.5 }}
             />
-            <Typography variant="caption" color={`${strength.color}.main`}>
+            <Typography
+              variant="caption"
+              color={`${strength.color}.main`}
+              sx={{ fontWeight: 500 }}
+            >
               {strength.label}
             </Typography>
           </>
@@ -108,19 +116,43 @@ export const ChangePassword = () => {
         label="Confirm new password"
         type="password"
         icon={LockOutlined}
-        {...register('confirmNewPassword')}
+        {...register("confirmNewPassword")}
         error={errors.confirmNewPassword?.message}
       />
 
-      {serverError && <Alert severity="error" sx={{ borderRadius: 2 }}>{serverError}</Alert>}
+      {serverError && (
+        <Alert severity="error" sx={{ borderRadius: 3 }}>
+          {serverError}
+        </Alert>
+      )}
+
       {success && (
-        <Alert severity="success" icon={<CheckCircleOutlineOutlined />} sx={{ borderRadius: 2 }}>
+        <Alert
+          severity="success"
+          icon={<CheckCircleOutlineOutlined/>}
+          sx={{ borderRadius: 3 }}
+        >
           Password changed successfully
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Button type="submit" loading={isLoading} endIcon={<ArrowForward />}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          pt: 2,
+          mt: 1,
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Button
+          type="submit"
+          variant="contained"
+          loading={isLoading}
+          endIcon={<ArrowForward />}
+          sx={{ px: 3, py: 1 }}
+        >
           Update password
         </Button>
       </Box>

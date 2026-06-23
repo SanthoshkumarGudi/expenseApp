@@ -25,6 +25,7 @@ import EmployeeList from "../pages/employees/EmployeeList";
 import EmployeeDetail from "../pages/employees/EmployeeDetail";
 import EmployeeForm from "../components/employees/EmployeeForm";
 import EmployeeCreate from "../pages/employees/EmployeeCreate";
+import EmployeeEdit from "../pages/employees/EmployeeEdit";
 
 const Dashboard = () => (
   <Box style={{ padding: 40, textAlign: "center", fontSize: 24 }}>
@@ -203,7 +204,7 @@ const router = createBrowserRouter([
         path: "/employees/:id/edit",
         element: (
           <AdminRoute>
-            <EmployeeForm />
+            <EmployeeEdit />
           </AdminRoute>
         ),
       },
