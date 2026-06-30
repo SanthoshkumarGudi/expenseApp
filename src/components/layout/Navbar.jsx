@@ -29,6 +29,8 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import EmployeeCreate from "../../pages/employees/EmployeeCreate";
+import EmployeeList from "../../pages/employees/EmployeeList";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -350,6 +352,11 @@ const MobileDrawer = ({
               selected={location.pathname === "/dashboard"}
               onClick={() => go("/dashboard")}
             />
+            <DrawerItem
+              label="Employee Dashboard"
+              selected={location.pathname==="/employees/list"}
+              onClick={()=> go("employees/list")}
+            />
 
             {isAdmin && (
               <DrawerItem
@@ -398,6 +405,7 @@ const MobileDrawer = ({
                 onClick={() => go("/settings/sessions")}
                 indent
               />
+           
             </Collapse>
           </List>
 
@@ -542,6 +550,7 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <NavLink to="/dashboard" label="Dashboard" />
+                <NavLink to="/employees/list" label="Employee Dashboard"/>
                 {isAdmin && <NavLink to="/admin/users" label="Admin" />}
               </>
             ) : (
@@ -615,27 +624,10 @@ const NavLink = ({ to, label }) => {
       size="small"
       sx={{
         fontWeight: active ? 600 : 500,
-        color: active ? "primary.main" : "text.secondary",
+        // color: active ? "primary.main" : "text.secondary",
         position: "relative",
         borderRadius: 1.5,
         px: 1.5,
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          bottom: 4,
-          left: "50%",
-          transform: active
-            ? "translateX(-50%) scaleX(1)"
-            : "translateX(-50%) scaleX(0)",
-          width: "60%",
-          height: 2,
-          bgcolor: "primary.main",
-          borderRadius: 1,
-          transition: "transform 0.2s ease",
-        },
-        "&:hover": { color: "primary.main", bgcolor: "primary.50" },
-        "&:hover::after": { transform: "translateX(-50%) scaleX(1)" },
-        transition: "color 0.2s",
       }}
     >
       {label}
